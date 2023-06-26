@@ -16,6 +16,11 @@ public class test {
     }
 
     public static void bbb(){
+        System.out.println("fsdf");
+    }
+
+
+    public static void ccc(){
         return;
     }
 }
