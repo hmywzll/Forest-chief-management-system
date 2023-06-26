@@ -14,6 +14,11 @@ public class test {
     public static void aaa(){
         System.out.println("fsdf");
     }
+
+    public static void bbb(){
+        System.out.println("fsdf");
+    }
+
 }
 
 
