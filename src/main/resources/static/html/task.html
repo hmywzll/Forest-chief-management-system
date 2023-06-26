@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>task</title>
+  <!--  vue-->
+  <script src="../js/vue.js"></script>
+  <!--  element-->
+  <link rel="stylesheet" href="../dependency/element-ui/lib/theme-chalk/index.css">
+  <script src="../dependency/element-ui/lib/index.js"></script>
+  <!--  axios-->
+  <script src="../dependency/axios/dist/axios.js"></script>
+
+  <link rel="stylesheet" href="../css/task.css">
+  <script src="../js/common.js"></script>
+</head>
+<body>
+<div id="app">
+  <el-container>
+    <el-header>
+      <el-menu
+          mode="horizontal">
+        <el-row>
+          <el-col :span="2">
+            <el-submenu index="0">
+              <span slot="title">我的任务</span>
+              <el-menu-item @click="change_data(0,0)">
+                全部
+              </el-menu-item>
+              <el-menu-item @click="change_data(0,1)">
+                未完成
+              </el-menu-item>
+              <el-menu-item @click="change_data(0,2)">
+                已完成
+              </el-menu-item>
+            </el-submenu>
+          </el-col>
+
+          <el-col :span="2">
+            <el-submenu index="1">
+              <span slot="title">派遣任务</span>
+              <el-menu-item @click="change_data(1,0)">
+                全部
+              </el-menu-item>
+              <el-menu-item @click="change_data(1,1)">
+                未完成
+              </el-menu-item>
+              <el-menu-item @click="change_data(1,2)">
+                已完成
+              </el-menu-item>
+            </el-submenu>
+          </el-col>
+
+          <el-col :span="2">
+            <el-menu-item @click="change_data(2,0)">
+              <span>巡护任务</span>
+            </el-menu-item>
+          </el-col>
+
+          <el-col :span="8">
+            <div v-if="type.one===2&&patrol.new_patrol.id">
+              <span>正在巡护</span>
+              <span>{{patrol.new_patrol.patrolArea}}</span>
+              <span>开始时间</span>
+              <span>{{get_time_month_minutes(patrol.new_patrol.startTime)}}</span>
+            </div>
+          </el-col>
+
+          <el-col :span="2">
+            <el-button v-if="type.one===2&&!patrol.new_patrol.id" @click="start_patrol">开始巡护</el-button>
+            <el-button v-if="type.one===2&&patrol.new_patrol.id" @click="end_patrol">结束巡护</el-button>
+          </el-col>
+        </el-row>
+
+
+
+      </el-menu>
+    </el-header>
+
+    <el-main>
+<!--      任务-->
+      <div v-if="type.one!==2">
+        <el-card v-for="item in task.data" :key="item.id" shadow="hover">
+          <el-row>
+            <el-col :span="2">{{type.one===0?"发起人":"派遣人"}}</el-col>
+            <el-col :span="2">
+              <span>{{item.dtoMap.PersonalInformation.username}}</span>
+            </el-col>
+            <el-col :offset="1" :span="2">任务类型</el-col>
+            <el-col :span="2">{{item.dtoMap.Task.taskType===0?'普通任务':'事件任务'}}</el-col>
+            <el-col :offset="1" :span="2">发起时间</el-col>
+            <el-col :span="2">{{new Date(item.dtoMap.Task.createTime).toLocaleDateString()}}</el-col>
+            <el-col :offset="1" :span="2">任务期限</el-col>
+            <el-col :span="2">{{new Date(item.dtoMap.Task.taskDeadline).toLocaleDateString()}}</el-col>
+            <el-col :offset="1" :span="2">任务状态</el-col>
+            <el-col :span="2">{{item.dtoMap.Task.taskStatus===0?'待完成':'已完成'}}</el-col>
+          </el-row>
+          <!--        <el-row>-->
+          <!--          <el-col :offset="1" :span="2"></el-col>-->
+          <!--          <el-col :span="2"></el-col>  -->
+          <!--        </el-row>-->
+
+          <el-row v-if="item.dtoMap.Task.taskType===1">
+            <el-col :span="2">事件列表</el-col>
+            <el-col :span="2">{{JSON.parse(item.dtoMap.LabelExample.labelGeojson).geometry.coordinates}}</el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="2">任务内容</el-col>
+            <el-col :span="2">{{item.dtoMap.Task.taskContent}}</el-col>
+          </el-row>
+          <el-row  v-if="item.dtoMap.Task.taskStatus===0&&type.one===0">
+            <el-col :offset="21 " :span="2">
+              <el-button @click="submit_task(item)">提交任务</el-button>
+            </el-col>
+          </el-row>
+          <div v-if="item.dtoMap.Task.taskStatus===1">
+            <el-row>
+              <el-col :span="2">完成时间</el-col>
+              <el-col :span="2">{{new Date(item.dtoMap.Task.taskCompletion).toLocaleDateString()}}</el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="2">任务反馈</el-col>
+              <el-col :span="2">{{item.dtoMap.Task.taskReport}}</el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="2">图片</el-col>
+              <el-col  :span="2" v-for="item1 in item.dtoMap.Task.taskImgs.split(',')" :key="item1">
+                <el-image :src="get_img(item1)"></el-image>
+              </el-col>
+            </el-row>
+          </div>
+        </el-card>
+
+        <el-dialog
+            width="80%"
+            :before-close="change_task_dialog_flag"
+            :append-to-body="true"
+            :visible="task_dialog.flag">
+          <span slot="title">提交任务</span>
+
+          <div  v-if="task_dialog.data">
+            <el-row>
+              <el-col :span="2">发起人</el-col>
+              <el-col :span="2">
+                <span>{{task_dialog.data.dtoMap.PersonalInformation.username}}</span>
+              </el-col>
+              <el-col :offset="1" :span="2">任务类型</el-col>
+              <el-col :span="2">{{task_dialog.data.dtoMap.Task.taskType===0?'普通任务':'事件任务'}}</el-col>
+              <el-col :offset="1" :span="2">发起时间</el-col>
+              <el-col :span="2">{{new Date(task_dialog.data.dtoMap.Task.createTime).toLocaleDateString()}}</el-col>
+              <el-col :offset="1" :span="2">任务期限</el-col>
+              <el-col :span="2">{{new Date(task_dialog.data.dtoMap.Task.taskDeadline).toLocaleDateString()}}</el-col>
+              <el-col :offset="1" :span="2">任务状态</el-col>
+              <el-col :span="2">{{task_dialog.data.dtoMap.Task.taskStatus===0?'待完成':'已完成'}}</el-col>
+            </el-row>
+            <el-row v-if="task_dialog.data.dtoMap.Task.taskType===1">
+              <el-col :span="2">事件列表</el-col>
+              <el-col :span="2">{{JSON.parse(task_dialog.data.dtoMap.LabelExample.labelGeojson).geometry.coordinates}}</el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="2">任务内容</el-col>
+              <el-col :span="2">{{task_dialog.data.dtoMap.Task.taskContent}}</el-col>
+            </el-row>
+
+            <el-form ref="task_form" :model="task_dialog.data.dtoMap.Task" :rules="task_rules">
+              <el-form-item prop="taskReport">
+                <el-row>
+                  <el-col :span="4">任务汇报</el-col>
+                  <el-col :span="20">
+                    <el-input
+                        v-model="task_dialog.data.dtoMap.Task.taskReport"
+                        type="textarea">
+                    </el-input>
+                  </el-col>
+                </el-row>
+              </el-form-item>
+
+              <el-form-item prop="taskImgs">
+                <el-row>
+                  <el-col :span="4">图片</el-col>
+                  <el-col :span="20">
+                    <el-upload
+                        class="avatar-uploader"
+                        :accept="'image/jpg'"
+                        list-type="picture"
+                        :limit="5"
+                        :on-exceed="img_limit"
+                        :on-success="label_upload_img_success"
+                        :on-remove="label_upload_img_remove"
+                        action="/upload_img/task">
+                      <i class="el-icon-plus avatar-uploader-icon"></i>
+                    </el-upload>
+                  </el-col>
+                </el-row>
+              </el-form-item>
+            </el-form>
+          </div>
+
+          <el-row slot="footer">
+            <el-col :offset="2" :span="2">
+              <el-button @click="change_task_dialog_flag">取消</el-button>
+            </el-col>
+            <el-col :offset="16" :span="2">
+              <el-button @click="notarize_submit_task">提交</el-button>
+            </el-col>
+          </el-row>
+        </el-dialog>
+      </div>
+<!--      巡护-->
+      <div v-if="type.one===2">
+        <el-card v-for="item in patrol.data" :key="item.id" shadow="hover">
+          <el-row>
+            <el-col :span="2">巡护区域</el-col>
+            <el-col :span="2">
+              {{item.patrolArea}}
+            </el-col>
+            <el-col :span="2">开始时间</el-col>
+            <el-col :span="2">
+              {{get_time_month_minutes(item.startTime)}}
+            </el-col>
+            <el-col :span="2">结束时间</el-col>
+            <el-col :span="2">
+              {{get_time_month_minutes(item.endTime)}}
+            </el-col>
+            <el-col :span="2">巡护时间</el-col>
+            <el-col :span="2">
+              {{get_hours_minutes_seconds(item.patrolDuration)}}
+            </el-col>
+            <el-col :span="2">巡护里程</el-col>
+            <el-col :span="2">
+              {{item.patrolMileage}} 公里
+            </el-col>
+          </el-row>
+
+          <el-row>
+            <el-col :span="2">巡护报告</el-col>
+            <el-col :span="2">
+              {{item.patrolContent}}
+            </el-col>
+          </el-row>
+
+          <el-row>
+            <el-col :span="2">图片</el-col>
+            <el-col  :span="2" v-for="item1 in item.patrolImgs.split(',')" :key="item1">
+              <el-image :src="get_img(item1)"></el-image>
+            </el-col>
+          </el-row>
+        </el-card>
+<!--start-->
+        <el-dialog
+            width="80%"
+            :before-close="change_patrol_dialog_flag"
+            :append-to-body="true"
+            :visible="patrol.dialog_flag">
+          <span slot="title">开始巡护</span>
+
+          <el-form ref="start_patrol_form" :model="patrol.new_patrol" :rules="start_rules">
+            <el-form-item prop="patrolArea">
+              <el-row>
+                <el-col :span="2">巡护区域</el-col>
+                <el-col :span="10">
+                  <el-input v-model="patrol.new_patrol.patrolArea"></el-input>
+                </el-col>
+              </el-row>
+            </el-form-item>
+          </el-form>
+
+          <el-row slot="footer">
+            <el-col :offset="2" :span="2">
+              <el-button @click="change_patrol_dialog_flag">取消</el-button>
+            </el-col>
+            <el-col :offset="16" :span="2">
+              <el-button @click="notarize_start_patrol">开始</el-button>
+            </el-col>
+          </el-row>
+        </el-dialog>
+<!--end-->
+        <el-dialog
+            width="80%"
+            :before-close="change_patrol_end_flag"
+            :append-to-body="true"
+            :visible="patrol.end_flag">
+          <span slot="title">结束巡护</span>
+
+          <el-form ref="patrol_end_form" :model="patrol.new_patrol" :rules="end_rules">
+            <el-form-item prop="patrolMileage">
+              <el-row>
+                <el-col :span="2">巡护里程</el-col>
+                <el-col :span="2">
+                  <el-input v-model="patrol.new_patrol.patrolMileage"></el-input>
+                </el-col>
+                <el-col :span="1">公里</el-col>
+              </el-row>
+            </el-form-item>
+
+            <el-form-item prop="patrolContent">
+              <el-row>
+                <el-col :span="2">巡护报告</el-col>
+                <el-col :span="10">
+                  <el-input v-model="patrol.new_patrol.patrolContent" type="textarea"></el-input>
+                </el-col>
+              </el-row>
+            </el-form-item>
+
+            <el-form-item prop="patrolImgs">
+              <el-row>
+                <el-col :span="4">图片</el-col>
+                <el-col :span="20">
+                  <el-upload
+                      class="avatar-uploader"
+                      :accept="'image/jpg'"
+                      list-type="picture"
+                      :limit="5"
+                      :on-exceed="img_limit"
+                      :on-success="patrol_upload_img_success"
+                      :on-remove="patrol_upload_img_remove"
+                      action="/upload_img/patrol">
+                    <i class="el-icon-plus avatar-uploader-icon"></i>
+                  </el-upload>
+                </el-col>
+              </el-row>
+            </el-form-item>
+          </el-form>
+
+          <el-row slot="footer">
+            <el-col :offset="2" :span="2">
+              <el-button @click="change_patrol_end_flag">取消</el-button>
+            </el-col>
+            <el-col :offset="16" :span="2">
+              <el-button @click="notarize_end_patrol">结束</el-button>
+            </el-col>
+          </el-row>
+        </el-dialog>
+      </div>
+    </el-main>
+
+    <el-footer>
+      <el-pagination
+          :pager-count="7"
+          :current-page="page.current"
+          :page-sizes="[10,20,30]"
+          :total="page.total"
+          @size-change="function(size){trim_page();page.size=size;init();get_task_data();}"
+          @current-change="function(current){trim_page();page.current=current;get_task_data();}">
+      </el-pagination>
+    </el-footer>
+  </el-container>
+</div>
+</body>
+<script>
+
+  var app = new Vue({
+    el: "#app",
+    data() {
+      return {
+        patrol:{
+          data:[],
+          dialog_flag:false,
+          end_flag:false,
+          new_patrol:{
+            patrolArea:""
+          }
+        },
+        task:{
+          data:[]
+        },
+        type:{
+          one:0,
+          two:0
+        },
+        page:{
+          total:0,
+          size:10,
+          current:1
+        },
+        task_dialog:{
+          flag:false,
+          data:null
+        },
+        task_rules:{
+          taskReport:[
+            {required:true,message:"err",trigger:"change"}
+          ],
+          taskImgs:[
+            {required:true,message:"err",trigger:"change"}
+          ]
+        },
+        start_rules:{
+          patrolArea:[
+            {required:true,message:"err",trigger:"change"}
+          ]
+        },
+        end_rules:{
+          patrolMileage:[
+            {required:true,message:"err",trigger:"change"}
+          ],
+          patrolContent:[
+            {required:true,message:"err",trigger:"change"}
+          ],
+          patrolImgs:[
+            {required:true,message:"err",trigger:"change"}
+          ]
+        }
+      }
+    },
+    computed: {},
+    mounted: function () {
+      this.get_task_data();
+    },
+    methods: {
+      /**
+       * type改变数据
+       */
+      change_data:function (i,j){
+        this.change_type(i,j);
+        this.page={
+            total:0,
+            size:10,
+            current:1
+        }
+        this.get_task_data();
+      },
+      /**
+       * 更改type
+       */
+      change_type:function (i,j){
+        this.type.one=i;
+        this.type.two=j;
+      },
+      /**
+       * 获取task_data或patrol_data
+       */
+      get_task_data:function (){
+        let _this=this
+        if (this.type.one!==2){
+          axios.get("/task",{
+            data:{
+              ..._this.page,
+              ...this.type,
+            }
+          }).then(function (res){
+            if (res.data.code===1){
+              console.log(res.data.data)
+                _this.page=res.data.data;
+                _this.task.data=res.data.data.records;
+            }
+          })
+        }else {
+          _this.get_run_patrol();
+          axios.get("/patrol/my_patrol",{
+            data:{
+              ..._this.page
+            }
+          }).then(function (res){
+            if (res.data.code===1){
+              _this.page=res.data.data
+              _this.patrol.data=res.data.data.records;
+
+            }
+          })
+        }
+
+      },
+      /**
+       * 改变task_dialog.flag
+       */
+      change_task_dialog_flag:function (){
+        this.task_dialog.flag=!this.task_dialog.flag;
+      },
+      /**
+       * 获取图片路径
+       * @param name
+       * @returns {string}
+       */
+      get_img(name){
+        return get_img(name)
+      },
+      /**
+       * 提交任务
+       * @param item
+       */
+      submit_task:function (item){
+        this.change_task_dialog_flag();
+        this.task_dialog.data=item;
+        console.log(this.task_dialog.data)
+      },
+      /**
+       * 超出图片限制
+       */
+      img_limit:function (files,fileList){
+        app.$message.error("图片数量过多");
+      },
+      /**
+       * label实例图片上传钩子
+       */
+      label_upload_img_success:function (res,files,fileList){
+        this.label_upload_img_remove(files,fileList);
+      },
+      label_upload_img_remove:function (files,fileList){
+        let s=""
+        for (let i = 0; i < fileList.length; i++) {
+          s+=fileList[i].response.data+',';
+        }
+        this.task_dialog.data.dtoMap.Task.taskImgs=s.slice(0,s.length-1);
+      },
+
+      /**
+       *确认提交任务
+       */
+      notarize_submit_task:function (){
+        this.$refs["task_form"].validate(function (b){
+          if (b){
+            axios.put("/task/submit_task",{...app.task_dialog.data.dtoMap.Task}).then(function (res){
+              if (res.data.code===1){
+                app.$message.success("任务提交成功");
+                app.change_task_dialog_flag();
+                app.change_data(app.type.one,app.type.two);
+              }
+            })
+          }
+        })
+      },
+      /**
+       * 开始巡护任务
+       */
+      start_patrol:function (){
+        this.change_patrol_dialog_flag();
+      },
+      /**
+       * 改变patrol.dialog_flag
+       */
+      change_patrol_dialog_flag:function (){
+        this.patrol.dialog_flag=!this.patrol.dialog_flag;
+      },
+      /**
+       * 确认开始巡护
+       */
+      notarize_start_patrol:function (){
+        this.$refs["start_patrol_form"].validate(function (b){
+          if (b){
+            axios.post("/patrol",{...app.patrol.new_patrol}).then(function (res){
+              if (res.data.code===1){
+                app.patrol.new_patrol=res.data.data;
+                app.$message.success("巡护开始");
+                app.change_patrol_dialog_flag();
+                app.get_run_patrol();
+              }
+            })
+          }
+        })
+      },
+      /**
+       * 获取进行中的巡护
+       */
+      get_run_patrol(){
+        let _this=this
+        axios.get("/patrol/run").then(function (res){
+          if (res.data.code===1){
+            if (res.data.data){
+              _this.patrol.new_patrol=res.data.data;
+            }else {
+              _this.patrol.new_patrol={
+                patrolArea:""
+              }
+            }
+          }
+        })
+      },
+      /**
+       * 结束巡护
+       */
+      end_patrol:function (){
+        this.change_patrol_end_flag()
+      },
+      /**
+       * 改变patrol.end_flag
+       */
+      change_patrol_end_flag:function (){
+        this.patrol.end_flag=!this.patrol.end_flag;
+      },
+      /**
+       * patrol_end图片上传
+       */
+      patrol_upload_img_success:function (res,files,fileList){
+        this.patrol_upload_img_remove(files,fileList);
+      },
+      patrol_upload_img_remove:function (files,fileList){
+        let s=""
+        for (let i = 0; i < fileList.length; i++) {
+          s+=fileList[i].response.data+',';
+        }
+        this.patrol.new_patrol.patrolImgs=s.slice(0,s.length-1);
+      },
+      /**
+       * 映射时间
+       * @param b
+       * @returns {string}
+       */
+      get_time_month_minutes:function (b){
+        return get_time_month_minutes(b)
+      },
+      /**
+       * 确认结束巡护
+       */
+      notarize_end_patrol:function (){
+        this.$refs["patrol_end_form"].validate(function (b){
+          if (b){
+            axios.put("/patrol",{...app.patrol.new_patrol}).then(function (res){
+              if (res.data.code===1){
+                app.$message.success("结束巡护成功");
+                app.change_patrol_end_flag();
+                app.change_data(2,0);
+              }
+            })
+          }
+        })
+
+      },
+      /**
+       * 毫秒值转时分秒
+       * @param duration
+       * @returns {string}
+       */
+      get_hours_minutes_seconds:function msToTime(duration) {
+        let seconds = parseInt((duration / 1000) % 60);
+        let minutes = parseInt((duration / (1000 * 60)) % 60);
+        let hours = parseInt((duration / (1000 * 60 * 60)) % 24);
+
+        hours = (hours < 10) ? "0" + hours : hours;
+        minutes = (minutes < 10) ? "0" + minutes : minutes;
+        seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+        return hours + ":" + minutes + ":" + seconds;
+      },
+      /**
+       * 去除分页以外的数据
+       */
+      trim_page:function (){
+        app.page={
+          total:app.page.total,
+          size:app.page.size,
+          current:app.page.current
+        }
+      },
+    }
+  })
+</script>
+</html>

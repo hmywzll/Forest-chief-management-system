@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>label</title>
+  <!--  vue-->
+  <script src="../js/vue.js"></script>
+  <!--  element-->
+  <link rel="stylesheet" href="../dependency/element-ui/lib/theme-chalk/index.css">
+  <script src="../dependency/element-ui/lib/index.js"></script>
+  <!--  axios-->
+  <script src="../dependency/axios/dist/axios.js"></script>
+
+  <link rel="stylesheet" href="../css/label.css">
+  <script src="../js/common.js"></script>
+</head>
+<body>
+<div id="app">
+  <el-container>
+    <el-header>
+      <el-row>
+        <el-col :span="18">
+
+        </el-col>
+        <el-col :span="6">
+          <el-button @click="add_label">添加标注</el-button>
+        </el-col>
+      </el-row>
+    </el-header>
+
+    <el-main>
+      <el-table
+          :stripe="true"
+          :row-class-name="function (){return 'label_tabel'}"
+          height="500"
+          :data="label_data">
+
+        <el-table-column
+            width=""
+            label="标注名称">
+          <span slot-scope="item">{{item.row.labelName}}</span>
+        </el-table-column>
+
+        <el-table-column
+            width=""
+            label="标注图标">
+          <div slot-scope="item" class="img_div">
+            <el-image :src="get_img(item.row.labelImg)"></el-image>
+          </div>
+
+        </el-table-column>
+
+        <el-table-column
+            width=""
+            label="标注类型">
+          <span slot-scope="item">{{item.row.labelType===0?'普通标注':'事件标注'}}</span>
+        </el-table-column>
+
+        <el-table-column
+            width=""
+            label="标注描述">
+          <span slot-scope="item">{{item.row.labelRemark}}</span>
+        </el-table-column>
+
+        <el-table-column
+            width=""
+            label="操作">
+          <el-button slot-scope="item" @click="delete_label(item.row.id)">删除</el-button>
+        </el-table-column>
+      </el-table>
+    </el-main>
+
+    <el-footer>
+      <el-pagination
+          :pager-count="7"
+          :current-page="page.current"
+          :page-sizes="[10,20,30]"
+          :total="page.total"
+          @size-change="function(size){page.size=size;init();get_label_data();}"
+          @current-change="function(current){page.current=current;get_label_data();}">
+      </el-pagination>
+    </el-footer>
+  </el-container>
+</div>
+</body>
+<script>
+  var app = new Vue({
+    el: "#app",
+    data() {
+      return {
+        label_data:[],
+        page:{
+          total:0,
+          size:10,
+          current:1
+        }
+      }
+    },
+    computed: {
+    },
+    mounted: function () {
+      this.get_label_data();
+    },
+    methods: {
+      /**
+       * 添加标注
+       */
+      add_label:function (){
+        window.parent.location.last_href=window.location.href;
+        window.location.href=the_path+"/html/add_label.html";
+      },
+      /**
+       * 获取标注数据
+       */
+      get_label_data: async function (){
+        let _this=this
+        await axios.get("/label/page",{
+          data:{
+            size:_this.page.size,
+            current:_this.page.current
+          }
+        }).then(function (res){
+          if (res.data.code===1){
+            _this.page=res.data.data;
+            _this.label_data=res.data.data.records;
+          }
+        })
+      },
+      /**
+       * 获取图片路径
+       * @param name
+       * @returns {string}
+       */
+      get_img:function (name){
+        return get_img(name)
+      },
+      /**
+       * 删除图标
+       */
+      delete_label:function (id){
+        app.$confirm("确认删除？","提示",{
+          type:"info"
+        }).then(function (){
+          axios.delete("/label",{
+            data:{
+              id:id
+            }
+          }).then(function (res){
+            if (res.data.code===1){
+              app.$message.success("删除标注成功");
+              app.get_label_data();
+            }
+          })
+        }).catch(function (){
+        })
+      }
+    }
+  })
+</script>
+</html>

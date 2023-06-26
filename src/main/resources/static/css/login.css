@@ -1,0 +1,74 @@
+*{
+    position: relative;
+    margin: 0;
+}
+div#body {
+    margin: 5px;
+    position: relative;
+    background-image: url("../img/static/login.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: calc(100vh - 10px);
+    width: calc(100vw - 10px);
+}
+div#app{
+    top: calc((100vh - 500px)/2);
+    left: calc((100vw - 700px)/2);
+    position: relative;
+    background-color: #ecf5ff;
+    border-style: solid;
+    border-color: #3a8ee6;
+    border-width: 2px;
+    height: 500px;
+    width: 700px;
+}
+.form{
+    margin: auto;
+    width: 400px;
+}
+.background_img{
+    height: 100px;
+    width: 100px;
+    position: relative;
+    left: calc(50% - 50px);
+    top: calc(50% - 50px);
+}
+
+.el-header p{
+    display: block;
+    height: 100px;
+    width: 450px;
+    font-size: 50px;
+    font-family: "华文楷体", system-ui;
+    line-height: 100px;
+    left: calc(50% - 225px);
+    top: calc(50% - 50px);
+
+}
+
+.verification_code_input{
+    width: 200px;
+    vertical-align: middle;
+    left: 0;
+}
+.verification_code_image{
+    height: 40px; width: 150px;
+    vertical-align: middle;
+    background-color: white;
+    left: 45px;
+}
+.el-checkbox{
+    vertical-align: middle;
+    left: 5px;
+}
+.el-link{
+    vertical-align: middle;
+    left: 250px;
+}
+.el-form-item .el-button{
+
+    height: 40px;
+    width: 100px;
+    left: calc(50% - 50px);
+}
+

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>add_label</title>
+  <!--  vue-->
+  <script src="../js/vue.js"></script>
+  <!--  element-->
+  <link rel="stylesheet" href="../dependency/element-ui/lib/theme-chalk/index.css">
+  <script src="../dependency/element-ui/lib/index.js"></script>
+  <!--  axios-->
+  <script src="../dependency/axios/dist/axios.js"></script>
+
+  <link rel="stylesheet" href="../css/add_label.css">
+  <script src="../js/common.js"></script>
+</head>
+<body>
+<div id="app">
+  <el-container>
+    <el-header>
+      <el-link @click="get_back">返回</el-link>
+    </el-header>
+
+    <el-main>
+      <el-form
+          ref="form"
+          :rules="rules"
+          :model="form">
+        <el-form-item
+            prop="labelName">
+          <el-row>
+            <el-col :span="2">
+              标注名称
+            </el-col>
+            <el-col :span="22">
+              <el-input v-model="form.labelName"></el-input>
+            </el-col>
+          </el-row>
+        </el-form-item>
+
+        <el-form-item
+            prop="labelImg">
+          <el-row>
+            <el-col :span="2">
+              标注图标
+            </el-col>
+            <el-col :span="22">
+              <el-upload
+                  class="avatar-uploader"
+                  action="/upload_img/label"
+                  :show-file-list="false"
+                  :on-success="upload_success">
+                <img v-if="form.labelImg" :src="img_url" class="avatar">
+                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+              </el-upload>
+            </el-col>
+          </el-row>
+        </el-form-item>
+
+        <el-form-item
+            prop="labelType">
+          <el-row>
+            <el-col>
+              标准类型
+            </el-col>
+            <el-col>
+              <el-select v-model="form.labelType">
+                <el-option v-for="item in form_data.labelType" :key="item.value" :value="item.value" :label="item.key">
+                </el-option>
+              </el-select>
+            </el-col>
+          </el-row>
+        </el-form-item>
+
+        <el-form-item
+            prop="labelRemark">
+          <el-row>
+            <el-col>
+              标注描述
+            </el-col>
+            <el-col>
+              <el-input type="textarea" :rows="3" v-model="form.labelRemark"></el-input>
+            </el-col>
+          </el-row>
+        </el-form-item>
+        <el-row>
+          <el-col>
+            <el-button @click="get_back">返回</el-button>
+          </el-col>
+          <el-col>
+            <el-button @click="add_label">添加</el-button>
+          </el-col>
+        </el-row>
+      </el-form>
+    </el-main>
+  </el-container>
+</div>
+</body>
+<script>
+  var app = new Vue({
+    el: "#app",
+    data() {
+      return {
+        form:{
+          labelName:"",
+          labelImg:"",
+          labelType:"",
+          labelRemark:""
+        },
+        form_data:{
+          labelType:[
+            {key:"普通标注",value:0},
+            {key:"事件标注",value:1}
+          ]
+        },
+        rules:{
+          labelName:[
+            {required:true,message:"err",trigger:"change"}
+          ],
+          labelImg:[
+            {required:true,message:"err",trigger:"change"}
+          ],
+          labelType:[
+            {required:true,message:"err",trigger:"change"}
+          ],
+          labelRemark:[
+            {required:true,message:"err",trigger:"change"}
+          ]
+        }
+
+      }
+    },
+    computed: {
+      img_url:function (){
+        return get_img(this.form.labelImg);
+      }
+    },
+    mounted: function () {
+
+    },
+    methods: {
+      /**
+       * 返回
+       */
+      get_back:function (){
+        window.location.href=window.parent.location.last_href
+      },
+      /**
+       * 图片上传成功
+       */
+      upload_success:function (res, file, fileList){
+        if (res.code===1){
+          this.form.labelImg=res.data;
+        }
+      },
+      /**
+       * 添加标注
+       */
+      add_label:function (){
+        app.$refs["form"].validate(function (b){
+          if (b){
+            axios.post("/label",{...app.form}).then(function (res){
+              if (res.data.code===1){
+                window.parent.app.$message.success("标注添加成功");
+                app.get_back();
+              }
+            })
+          }
+        })
+      }
+    }
+  })
+</script>
+</html>

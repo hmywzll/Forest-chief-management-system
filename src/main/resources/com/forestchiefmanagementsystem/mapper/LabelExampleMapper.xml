@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.forestchiefmanagementsystem.mapper.LabelExampleMapper">
+
+    <resultMap id="BaseResultMap" type="com.forestchiefmanagementsystem.pojo.LabelExample">
+            <id property="id" column="id" jdbcType="CHAR"/>
+            <result property="labelId" column="label_id" jdbcType="CHAR"/>
+            <result property="exampleStatus" column="example_status" jdbcType="INTEGER"/>
+            <result property="exampleContent" column="example_content" jdbcType="VARCHAR"/>
+            <result property="exampleImgs" column="example_imgs" jdbcType="CHAR"/>
+            <result property="dealWithPersonId" column="deal_with_person_id" jdbcType="CHAR"/>
+            <result property="dealWithContent" column="deal_with_content" jdbcType="VARCHAR"/>
+            <result property="dealWithImgs" column="deal_with_imgs" jdbcType="CHAR"/>
+            <result property="dealWithTime" column="deal_with_time" jdbcType="TIMESTAMP"/>
+            <result property="isDelete" column="is_delete" jdbcType="INTEGER"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="createUser" column="create_user" jdbcType="CHAR"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+            <result property="updateUser" column="update_user" jdbcType="CHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,label_id,
+        example_status,example_content,example_imgs,
+        deal_with_person_id,
+        deal_with_content,deal_with_imgs,deal_with_time,
+        is_delete,create_time,create_user,
+        update_time,update_user
+    </sql>
+</mapper>

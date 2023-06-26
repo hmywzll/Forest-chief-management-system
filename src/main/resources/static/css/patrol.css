@@ -1,0 +1,20 @@
+*{
+    padding: 0;
+    margin: 0;
+}
+.table_line{
+    height: 100px;
+}
+
+.table_line_item{
+    height: 100px;
+}
+.img_div{
+    overflow: hidden;
+    height: 100px;
+    width: 100px;
+}
+.el-card{
+    margin-bottom: 20px;
+}
+

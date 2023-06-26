@@ -1,0 +1,68 @@
+* {
+    position: relative;
+    padding: 0;
+    margin: 0;
+}
+
+.header {
+    background-color: #ecf5ff;
+    border-bottom: #3a8ee6;
+    border-bottom-style: solid;
+    border-width: 1px;
+    padding: 5px 20px;
+}
+
+.left {
+    text-align: left;
+}
+
+.logo_img {
+    height: 50px;
+    width: 50px;
+    vertical-align: middle;
+    /*left: 20px;*/
+}
+
+.header p {
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 30px;
+    font-family: "华文楷体", system-ui;
+}
+
+.right {
+    text-align: right;
+}
+.avatar_img{
+    height: 45px;
+    width: 45px;
+    border-radius: 3px;
+
+}
+.el-avatar {
+
+    vertical-align: middle;
+}
+.logout{
+    height: 40px;
+    width: 50px;
+    vertical-align: middle;
+    background-image: url("../img/static/logout.png");
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+}
+.el-menu{
+    height: calc(100vh - 60px);
+}
+#index_iframe{
+    padding: 0;
+    overflow-y: hidden; /* 隐藏垂直滚动条 */
+    overflow-x: hidden; /* 隐藏水平滚动条 */
+}
+iframe{
+    height: 100%;
+    width: 100%;
+}
+
+

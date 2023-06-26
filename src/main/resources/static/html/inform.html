@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>inform</title>
+  <!--  vue-->
+  <script src="../js/vue.js"></script>
+  <!--  element-->
+  <link rel="stylesheet" href="../dependency/element-ui/lib/theme-chalk/index.css">
+  <script src="../dependency/element-ui/lib/index.js"></script>
+  <!--  axios-->
+  <script src="../dependency/axios/dist/axios.js"></script>
+
+  <link rel="stylesheet" href="../css/inform.css">
+  <script src="../js/common.js"></script>
+</head>
+<body>
+<div id="app">
+  <el-container>
+    <el-header>
+      <el-row v-if="inform_dialog.my_position!==3">
+        <el-col :span="2">
+          <el-link :underline="false" @click="my_inform">我的通知</el-link>
+        </el-col>
+        <el-col :span="2">
+          <el-link :underline="false" @click="my_send_inform">发布的通知</el-link>
+        </el-col>
+        <el-col v-show="my_send" :offset="16">
+          <el-button @click="add_inform">添加通知</el-button>
+        </el-col>
+      </el-row>
+
+      <el-dialog
+          width="80%"
+          :before-close="change_inform_dialog_flag"
+          :append-to-body="true"
+          :visible="inform_dialog.flag">
+        <span slot="title">添加通知</span>
+
+        <el-form ref="inform_form" :model="inform_dialog.data" :rules="inform_rules">
+          <el-form-item prop="woodsId">
+            <el-row v-if="gt_position(1)">
+              <el-col :span="2">林地</el-col>
+              <el-col :span="3">
+                <el-select v-model="inform_dialog.data.woodsId" :value="inform_dialog.data.woodsId">
+                  <el-option v-for="item in inform_dialog.woods" :key="item.id" :label="item.woodsName" :value="item.id"></el-option>
+                </el-select>
+              </el-col>
+            </el-row>
+          </el-form-item>
+
+          <el-form-item prop="position">
+            <el-row>
+              <el-col :span="2">职位</el-col>
+              <el-col :span="3">
+                <el-select v-model="inform_dialog.data.position" :value="inform_dialog.data.woodsId">
+                  <el-option v-for="item in inform_dialog.position" v-show="gt_position(item.value)" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                </el-select>
+              </el-col>
+            </el-row>
+          </el-form-item>
+
+          <el-form-item prop="informTitle">
+            <el-row>
+              <el-col :span="2">标题</el-col>
+              <el-col :span="20">
+                <el-input v-model="inform_dialog.data.informTitle"></el-input>
+              </el-col>
+            </el-row>
+          </el-form-item>
+
+          <el-form-item prop="informContent">
+            <el-row>
+              <el-col :span="2">内容</el-col>
+              <el-col :span="20">
+                <el-input type="textarea" v-model="inform_dialog.data.informContent"></el-input>
+              </el-col>
+            </el-row>
+          </el-form-item>
+        </el-form>
+
+        <el-row slot="footer">
+          <el-col :offset="2" :span="2">
+            <el-button @click="change_inform_dialog_flag">取消</el-button>
+          </el-col>
+          <el-col :offset="16" :span="2">
+            <el-button @click="notarize_submit_inform">发布</el-button>
+          </el-col>
+        </el-row>
+      </el-dialog>
+    </el-header>
+
+    <el-main>
+      <el-card v-for="item in inform_data" :key="item.dtoMap.Inform.id"  shadow="hover">
+        <el-row slot="header">
+          <el-col :span="12">
+            <span>{{ item.dtoMap.Inform.informTitle }}</span>
+          </el-col>
+          <el-col :span="2">
+            通知范围
+          </el-col>
+          <el-col :span="3">
+            {{item.dtoMap.Woods.woodsName}}/{{get_position(item.dtoMap.Inform.position)}}
+          </el-col>
+          <el-col :span="2">
+            发布人
+          </el-col>
+          <el-col :span="2">
+            {{item.dtoMap.PersonalInformation.username}}
+          </el-col>
+          <el-col :span="2">
+            {{get_time(item.dtoMap.Inform.createTime)}}
+          </el-col>
+        </el-row>
+
+        <el-row>
+          <el-col :offset="2" :span="20">
+            <span>{{item.dtoMap.Inform.informContent}}</span>
+          </el-col>
+        </el-row>
+
+        <el-row>
+          <el-col :offset="20">
+            <el-button v-if="my_send" @click="delete_inform(item.dtoMap.Inform.id)">删除通知</el-button>
+          </el-col>
+        </el-row>
+      </el-card>
+    </el-main>
+
+    <el-footer>
+      <el-pagination
+          :pager-count="7"
+          :current-page="page.current"
+          :page-sizes="[10,20,30]"
+          :total="page.total"
+          @size-change="function(size){page.size=size;my_send?get_inform():get_send_inform();}"
+          @current-change="function(current){page.current=current;my_send?get_inform():get_send_inform();}">
+      </el-pagination>
+    </el-footer>
+  </el-container>
+</div>
+</body>
+<script>
+  var app = new Vue({
+    el: "#app",
+    data() {
+      return {
+        my_send:false,
+        inform_data:null,
+        page:{
+          total:0,
+          size:10,
+          current:1
+        },
+        inform_dialog:{
+          position:[
+            {label:"管理员",value:0},
+            {label:"林长",value:1},
+            {label:"监管员",value:2},
+            {label:"巡护员",value:3},
+          ],
+          woods:null,
+          flag:false,
+          data:{
+            informTitle:"",
+            informContent:"",
+            woodsId:"",
+            position:null
+          }
+        },
+
+        inform_rules:{
+          informTitle:[
+            {required:true,message:"err",trigger:"change"}
+          ],
+          informContent:[
+            {required:true,message:"err",trigger:"change"}
+          ],
+          woodsId:[
+            {required:true,message:"err",trigger:"change"}
+          ],
+          position:[
+            {required:true,message:"err",trigger:"change"}
+          ]
+        }
+      }
+    },
+    computed: {},
+    mounted: function () {
+      this.get_inform();
+    },
+    methods: {
+      /**
+       * 添加通知
+       */
+      add_inform:function (){
+        this.change_inform_dialog_flag();
+        if (app.gt_position(1)){
+          axios.get("/woods").then(function (res){
+            if (res.data.code===1){
+              app.inform_dialog.woods=res.data.data;
+            }
+          })
+        } else {
+          this.inform_dialog.data.woodsId="0";
+        }
+      },
+      /**
+       * 更改inform_dialog.flag
+       */
+      change_inform_dialog_flag:function (){
+        this.inform_dialog.flag=!this.inform_dialog.flag;
+      },
+      /**
+       * 确认发布通知
+       */
+      notarize_submit_inform:function (){
+        this.$refs["inform_form"].validate(function (b){
+          if (b){
+            axios.post("/inform",{...app.inform_dialog.data}).then(function (res){
+              if (res.data.code===1){
+                app.$message.success("发布通知成功");
+                app.change_inform_dialog_flag();
+                app.inform_dialog.data={
+                  informTitle:"",
+                      informContent:"",
+                    woodsId:"",
+                    position:null
+                }
+                app.my_send_inform();
+              }
+            })
+          }
+        })
+      },
+      /**
+       * 获取通知
+       */
+      get_inform:function (){
+        let _this=this
+        axios.get("/inform/my_inform",{
+          data:{
+            ..._this.page
+          }
+        }).then(function (res){
+          if (res.data.code===1){
+            _this.page=res.data.data
+            _this.inform_data=res.data.data.records;
+          }
+        })
+      },
+      /**
+       * 获取发送的通知
+       */
+      get_send_inform:function (){
+        axios.get("/inform/my_send_inform",{
+          data:{
+            ...app.page
+          }
+        }).then(function (res){
+          if (res.data.code===1){
+            app.page=res.data.data
+            app.inform_data=res.data.data.records;
+          }
+        })
+      },
+      /**
+       * 我的通知
+       */
+      my_inform:function (){
+        this.my_send=false;
+        this.clear_data();
+        this.get_inform();
+      },
+      /**
+       * 我发送的通知
+       */
+      my_send_inform:function (){
+        this.my_send=true;
+        this.clear_data();
+        this.get_send_inform();
+      },
+      /**
+       * 清除数据
+       */
+      clear_data:function (){
+        this.inform_data=null;
+        this.page={total:0, size:10, current:1};
+      },
+      /**
+       * 删除通知
+       */
+      delete_inform(id){
+        this.$confirm("确认删除通知?", {
+          type:"info"
+        }).then(function (action){
+          axios.delete("/inform",{
+            data:{
+              id:id
+            }
+          }).then(function (res){
+            if (res.data.code===1){
+              app.$message.success("删除成功");
+              app.my_send_inform();
+            }
+          })
+        }).catch();
+      },
+      /**
+       * get_position
+       */
+      get_position(i){
+        return get_position(i);
+      },
+      /**
+       * get_time
+       * @param b
+       * @returns {string}
+       */
+      get_time(b){
+        return get_time(b);
+      },
+      /**
+       * 大于position判断
+       */
+      gt_position(i){
+        return gt_position(i);
+      }
+
+    }
+  })
+</script>
+</html>
