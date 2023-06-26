@@ -7,4 +7,13 @@ public class test {
         long l=System.currentTimeMillis();
         System.out.println(l);
     }
+
+    /**
+     * aaa
+     */
+    public static void aaa(){
+        System.out.println("fsdf");
+    }
 }
+
+
