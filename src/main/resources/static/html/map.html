@@ -144,6 +144,7 @@
     <div id="action_box_detail" @click.stop @mousemove.stop @mousedown.stop @mouseup.stop v-show="action_box.detail.show">
       <el-container style="width: 400px">
         <el-main>
+
           <div v-if="action_box.detail.type==='woods'">
 <!--            {{action_box.detail.data}}-->
             <el-row>
@@ -657,13 +658,13 @@
             return L.DomUtil.get("action_box_show");
           }
           control_show.addTo(this.map);
-          //添加woods添加控件
+          //添加 woods添加 控件
           let control_woods=L.control({position:'bottomleft'});
           control_woods.onAdd=function (){
             return L.DomUtil.get("action_box_woods");
           }
           control_woods.addTo(this.map);
-          //添加label添加控件
+          //添加 label添加 控件
           let control_label=L.control({position:'bottomleft'});
           control_label.onAdd=function (){
             return L.DomUtil.get("action_box_label");
@@ -739,7 +740,8 @@
          * 刷新woods图层
          */
         refresh_woods:function (){
-          this.refresh_layer(this.woods.data,(data)=>data.show,this.woods.layer_group,this.woods.layers);
+          this.refresh_layer(this.woods.data,
+              (data)=>data.show,this.woods.layer_group,this.woods.layers);
         },
         /**
          * 刷新图层

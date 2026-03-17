@@ -57,7 +57,7 @@
         <result property="patrolArea" column="pa_patrol_area" jdbcType="VARCHAR"/>
         <result property="patrolStatus" column="patrol_status" jdbcType="INTEGER"/>
         <result property="patrolCount" column="patrolCount" jdbcType="INTEGER"/>
-        <result property="timeCount" column="timeCount" jdbcType="INTEGER"/>
+        <result property="timeCount" column="timeCount" jdbcType="BIGINT"/>
         <result property="mileageCount" column="mileageCount" jdbcType="INTEGER"/>
 
         <association property="pI" resultMap="PIMap"/>

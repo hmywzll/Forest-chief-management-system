@@ -41,13 +41,16 @@ public class InformController {
     @PostMapping
     public R<String> addInform(@RequestBody Inform inform){
 
+        //设置发送者id
         inform.setSendPersonId(ThreadUtil.getPIId());
 
+        //如果当前用户不是管理员，则设置通知的 WoodId
         if (ThreadUtil.getPIPosition()!=0){
             PersonalInformation PI = personalInformationService.getById(ThreadUtil.getPIId());
             inform.setWoodsId(PI.getWoodsId());
         }
 
+        //保存通知
         boolean save = informService.save(inform);
         if (save){
             return R.success("发布通知成功");
@@ -56,7 +59,7 @@ public class InformController {
         }
     }
 
-    /**
+   /**
      * 获取我的通知
      * @param current
      * @param size
@@ -72,11 +75,16 @@ public class InformController {
 
         List<Inform> records = page.getRecords();
 
+        //获取发送者id
         List<String> pICollect = records.stream().map(Inform::getSendPersonId).collect(Collectors.toList());
+        //获取 wood id
         List<String> woodsCollect = records.stream().map(Inform::getWoodsId).collect(Collectors.toList());
+        //根据发送者id查询PersonalInformation
         List<PersonalInformation> pIList = personalInformationService.list(new LambdaQueryWrapper<PersonalInformation>().in(PersonalInformation::getId, pICollect));
+        //根据 wood id查询Woods
         List<Woods> woodsList = woodsService.list(new LambdaQueryWrapper<Woods>().in(Woods::getId,woodsCollect));
 
+        //将查询结果封装成Dto
         ArrayList<Dto> dtoList = DtoUtil.getDtoList(records, Inform::getSendPersonId, pIList, PersonalInformation::getId);
         dtoList = DtoUtil.getDtoList(dtoList, Inform.class, Inform::getWoodsId, woodsList, Woods::getId);
 
@@ -87,7 +95,7 @@ public class InformController {
         return R.success(dtoIPage);
     }
 
-    /**
+   /**
      * 获取我发送的通知
      * @param current
      * @param size
@@ -102,11 +110,13 @@ public class InformController {
 
         List<Inform> records = page.getRecords();
 
+        //获取发送通知的用户信息
         List<String> pICollect = records.stream().map(Inform::getSendPersonId).collect(Collectors.toList());
         List<String> woodsCollect = records.stream().map(Inform::getWoodsId).collect(Collectors.toList());
         List<PersonalInformation> pIList = personalInformationService.list(new LambdaQueryWrapper<PersonalInformation>().in(PersonalInformation::getId, pICollect));
         List<Woods> woodsList = woodsService.list(new LambdaQueryWrapper<Woods>().in(Woods::getId,woodsCollect));
 
+        //将用户信息，通知信息，树信息封装成Dto
         ArrayList<Dto> dtoList = DtoUtil.getDtoList(records, Inform::getSendPersonId, pIList, PersonalInformation::getId);
         dtoList = DtoUtil.getDtoList(dtoList, Inform.class, Inform::getWoodsId, woodsList, Woods::getId);
 

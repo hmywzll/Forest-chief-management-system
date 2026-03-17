@@ -1,12 +1,114 @@
-# 产品原型
+### **项目概要**
 
-![页面 Forest chief management system](D:\java\xm\ForestChiefManagementSystem\Forest chief management system.png)
+#### **简介**
+
+林长制综合管理系统是一套应用于林业管理领域的平台。主要功能包括对人员的调度；森林资源及特殊地点的标注；森林资源数据化地图。
+
+#### **使用技术**
+
+后端：SpringBoot MybatisPlus Mysql
+
+前端：Vue ElementUI Axios leaflet
+
+#### **角色划分**
+
+超级管理员
+
+管理员
+
+林长
+
+监护员
+
+巡护员
+
+#### **项目功能**
+
+##### 1.用户管理模块
+
+用户管理模块包含登录、登出、添加账号、修改账号和删除账号等功能，用于对用户的管理。
+
+登录，使用账号和密码与验证码登录，验证码严格大小写。
+
+登出，登出系统并清除sesion。
+
+添加账号，由林长及上级角色添加账号，密码默认电话号码.
+
+修改账号，由本人修改账号和密码。
+
+删除账号，由林长及上级角色删除较之下级的账号。
+
+ 
+
+##### 2.通知管理模块
+
+通知管理模块包含通知查看、通知发送和通知删除等功能，用于通知管理。
+
+通知查看，查看对自己和对自己单位的通知。
+
+通知发送，由巡护员及上级角色发送通知，可选范围为自己林地的下级人员，管理员及上级角色可以发送不同林地。
+
+通知删除，由本人删除通知。
+
+##### 3. 标注管理模块
+
+标注管理模块包含添加标注、查看标注、删除标注、添加标注实例、查看标注实例和删除标注实例等功能，用与管理标注。
+
+添加标注，由管理员及上级角色添加标注，标注包括图标和提示信息。
+
+查看标注，由管理员及上级角色查看标注。
+
+删除标注，由管理员及上级角色删除标注。
+
+添加标注实例，由巡护员及上级角色添加标注实例，标注实例包括坐标、标注类型和具体信息。
+
+查看标注实例，由巡护员及上级角色。
+
+删除标注实例，由本人或管理员及上级角色删除标注实例。
+
+ 
+
+##### 4. 任务管理模块
+
+任务管理模块包含添加任务、查看任务和提交任务等功能，用于管理任务。
+
+添加任务，由监管员及上级角色对下级角色发起任务，任务可为普通任务和事件任务和巡护任务。
+
+查看任务，包括自己的任务，自己发送的任务及巡护任务。
+
+提交任务，提交内容包处理报告及处理图片。
+
+ 
+
+##### 5. 林地管理模块
+
+林地管理模块包含添加林地和查看林地等功能，用于林地管理。
+
+添加林地，由超级管理员添加林地。
+
+查看林地，查看林地范围。
+
+ 
+
+##### 6. 文件管理模块
+
+文件管理模块包含上传图片、显示图片和生成验证码等功能，用于文件管理
+
+上传图片，图片大小不大于5mb，格式为jpg/png，默认存储为png
+
+显示图片，通过uuid图片名下载图片
+
+生成验证码，生成四位数字或字母的验证码
+
+
+
+### 产品原型
 
 ----
 
-# 数据库设计
+##### 数据库设计
 
-## 公共字段
+##### 公共字段
 
 | 字段名      | 字段类型 | 约束                | 字段注释 | 备注         |
 | ----------- | -------- | ------------------- | -------- | ------------ |
@@ -18,7 +120,7 @@
 | update_user | char(20) | not null            | 修改人   | 修改人id     |
 |             |          |                     |          |              |
 
-## 账号 account
+##### 账号 accout
 
 | 字段名                  | 字段类型 | 约束             | 字段注释                | 备注                             |
 | ----------------------- | -------- | ---------------- | ----------------------- | -------------------------------- |
@@ -28,7 +130,7 @@
 |                         |          |                  |                         |                                  |
 |                         |          |                  |                         |                                  |
 
-## 个人信息 personal_information
+##### 个人信息 personal_information
 
 | 字段名        | 字段类型 | 约束                | 字段注释 | 备注                             |
 | ------------- | -------- | ------------------- | -------- | -------------------------------- |
@@ -43,7 +145,7 @@
 | superior_id   | char(20) | not null            | 上级 id  | 个人信息 id                      |
 |               |          |                     |          |                                  |
 
-## 林地 woods
+##### 林地 woods
 
 | 字段名        | 字段类型 | 约束             | 字段注释    | 备注 |
 | ------------- | -------- | ---------------- | ----------- | ---- |
@@ -52,7 +154,7 @@
 | woods_geojson | text     | not null         | 林地geojson |      |
 |               |          |                  |             |      |
 
-## 标注 label
+##### 标注 label
 
 | 字段名       | 字段类型 | 约束             | 字段注释 | 备注                 |
 | ------------ | -------- | ---------------- | -------- | -------------------- |
@@ -62,7 +164,7 @@
 | label_remark | text     | not null         | 描述     |                      |
 |              |          |                  |          |                      |
 
-## 标注实例 label_example
+##### 标注实例 label_example
 
 | 字段名                 | 字段类型      | 约束                 | 字段注释   | 备注             |
 |---------------------|-----------|--------------------|--------| ---------------- |
@@ -77,7 +179,7 @@
 | deal_with_time      | DateTime  |                    | 处理时间   |                  |
 | label_geojson       | text      | not null           |        |                  |
 
-## 巡护 patrol
+##### 巡护 patrol
 
 | 字段名              | 字段类型      | 约束                  | 字段注释  | 备注        |
 |------------------|-----------|---------------------|-------|-----------|
@@ -91,7 +193,7 @@
 | patrol_area      | text      | not null            | 巡护区域  |           |
 | patrol_status    | int       | not null, default 0 | 巡护状态  | 0进行中，1已完成 |
 
-## 任务 task
+##### 任务 task
 
 | 字段名                | 字段类型 | 约束                | 字段注释     | 备注             |
 | --------------------- | -------- | ------------------- | ------------ | ---------------- |
@@ -107,7 +209,7 @@
 | task_completion       | DateTime |                     | 任务完成时间 |                  |
 |                       |          |                     |              |                  |
 
-## 通知 inform
+##### 通知 inform
 
 | 字段名         | 字段类型 | 约束     | 字段注释 | 备注                                       |
 | -------------- | -------- | -------- | -------- | ------------------------------------------ |
@@ -122,134 +224,134 @@
 
 
 
-# 项目功能 
+#### 界面展示
 
-## 1、登录
+##### 1、登录
 
-![image-20230619143645836](C:\Users\hm\AppData\Roaming\Typora\typora-user-images\image-20230619143645836.png)
+![image-20230619143645836](assets/image-20230619143645836.png)
 
-## 2、主界面
+##### 2、主界面
 
-![image-20230619150438520](C:\Users\hm\AppData\Roaming\Typora\typora-user-images\image-20230619150438520.png)
+![image-20230619150438520](assets/image-20230619150438520.png)
 
-### 2.1、登出
+###### 2.1、登出
 
-![image-20230619150602055](C:\Users\hm\AppData\Roaming\Typora\typora-user-images\image-20230619150602055.png)
+![image-20230619150602055](assets/image-20230619150602055.png)
 
-### 2.2、个人信息及修改密码
+###### 2.2、个人信息及修改密码
 
-![image-20230619150803732](C:\Users\hm\AppData\Roaming\Typora\typora-user-images\image-20230619150803732.png)
+![image-20230619150803732](assets/image-20230619150803732.png)
 
-![image-20230619150832868](C:\Users\hm\AppData\Roaming\Typora\typora-user-images\image-20230619150832868.png)
+![image-20230619150832868](assets/image-20230619150832868.png)
 
-### 2.3、侧边栏
+###### 2.3、侧边栏
 
-![image-20230619150929336](C:\Users\hm\AppData\Roaming\Typora\typora-user-images\image-20230619150929336.png)
+![image-20230619150929336](assets/image-20230619150929336.png)
 
-## 3、地图
+##### 3、地图
 
-![image-20230619150959193](C:\Users\hm\AppData\Roaming\Typora\typora-user-images\image-20230619150959193.png)
+![image-20230619150959193](assets/image-20230619150959193.png)
 
-### 3.1、更改标注显示状态
+###### 3.1、更改标注显示状态
 
-![image-20230619151049174](C:\Users\hm\AppData\Roaming\Typora\typora-user-images\image-20230619151049174.png)
+![image-20230619151049174](assets/image-20230619151049174.png)
 
-### 3.2、添加标注
+###### 3.2、添加标注
 
-![image-20230619151124817](C:\Users\hm\AppData\Roaming\Typora\typora-user-images\image-20230619151124817.png)
+![image-20230619151124817](assets/image-20230619151124817.png)
 
-### 3.3、添加林地
+###### 3.3、添加林地
 
-![image-20230619151147600](C:\Users\hm\AppData\Roaming\Typora\typora-user-images\image-20230619151147600.png)
+![image-20230619151147600](assets/image-20230619151147600.png)
 
-### 3.4、显示标注详细信息
+###### 3.4、显示标注详细信息
 
-![image-20230619151233734](C:\Users\hm\AppData\Roaming\Typora\typora-user-images\image-20230619151233734.png)
+![image-20230619151233734](assets/image-20230619151233734.png)
 
-### 3.5、提交事件
+###### 3.5、提交事件
 
-![image-20230619151406988](C:\Users\hm\AppData\Roaming\Typora\typora-user-images\image-20230619151406988.png)
+![image-20230619151406988](assets/image-20230619151406988.png)
 
 
 
-## 4、人员
+###### 4、人员
 
-![image-20230619151427324](C:\Users\hm\AppData\Roaming\Typora\typora-user-images\image-20230619151427324.png)
+![image-20230619151427324](assets/image-20230619151427324.png)
 
-### 4.1、添加人员
+###### 4.1、添加人员
 
-![image-20230619151450104](C:\Users\hm\AppData\Roaming\Typora\typora-user-images\image-20230619151450104.png)
+![image-20230619151450104](assets/image-20230619151450104.png)
 
-### 4.2、详细信息
+###### 4.2、详细信息
 
-![image-20230619151511773](C:\Users\hm\AppData\Roaming\Typora\typora-user-images\image-20230619151511773.png)
+![image-20230619151511773](assets/image-20230619151511773.png)
 
-### 4.3、派遣任务
+###### 4.3、派遣任务
 
-![image-20230619151529626](C:\Users\hm\AppData\Roaming\Typora\typora-user-images\image-20230619151529626.png)
+![image-20230619151529626](assets/image-20230619151529626.png)
 
-### 4.4、删除人员
+###### 4.4、删除人员
 
-![image-20230619151554461](C:\Users\hm\AppData\Roaming\Typora\typora-user-images\image-20230619151554461.png)
+![image-20230619151554461](assets/image-20230619151554461.png)
 
 
 
-## 5、任务
+##### 5、任务
 
-![image-20230619151640193](C:\Users\hm\AppData\Roaming\Typora\typora-user-images\image-20230619151640193.png)
+![image-20230619151640193](assets/image-20230619151640193.png)
 
-### 5.1、提交任务
+###### 5.1、提交任务
 
-![image-20230619151659147](C:\Users\hm\AppData\Roaming\Typora\typora-user-images\image-20230619151659147.png)
+![image-20230619151659147](assets/image-20230619151659147.png)
 
-### 5.2、查看派遣任务
+###### 5.2、查看派遣任务
 
-![image-20230619151725756](C:\Users\hm\AppData\Roaming\Typora\typora-user-images\image-20230619151725756.png)
+![image-20230619151725756](assets/image-20230619151725756.png)
 
-### 5.3、查询巡护任务
+###### 5.3、查询巡护任务
 
-![image-20230619151803110](C:\Users\hm\AppData\Roaming\Typora\typora-user-images\image-20230619151803110.png)
+![image-20230619151803110](assets/image-20230619151803110.png)
 
-### 5.4、开始巡护
+###### 5.4、开始巡护
 
-![image-20230619151854936](C:\Users\hm\AppData\Roaming\Typora\typora-user-images\image-20230619151854936.png)
+![image-20230619151854936](assets/image-20230619151854936.png)
 
-### 5.5、结束巡护
+###### 5.5、结束巡护
 
-![image-20230619152008877](C:\Users\hm\AppData\Roaming\Typora\typora-user-images\image-20230619152008877.png)
+![image-20230619152008877](assets/image-20230619152008877.png)
 
-## 6、通知
+##### 6、通知
 
-![image-20230619152031177](C:\Users\hm\AppData\Roaming\Typora\typora-user-images\image-20230619152031177.png)
+![image-20230619152031177](assets/image-20230619152031177.png)
 
-### 6.1、查看发布的通知
+###### 6.1、查看发布的通知
 
-![image-20230619152056858](C:\Users\hm\AppData\Roaming\Typora\typora-user-images\image-20230619152056858.png)
+![image-20230619152056858](assets/image-20230619152056858.png)
 
-### 6.2、删除通知
+###### 6.2、删除通知
 
-![image-20230619152115757](C:\Users\hm\AppData\Roaming\Typora\typora-user-images\image-20230619152115757.png)
+![image-20230619152115757](assets/image-20230619152115757.png)
 
-### 6.3、添加通知
+###### 6.3、添加通知
 
-![image-20230619152132928](C:\Users\hm\AppData\Roaming\Typora\typora-user-images\image-20230619152132928.png)
+![image-20230619152132928](assets/image-20230619152132928.png)
 
-## 7、标注
+##### 7、标注
 
-![image-20230619152147366](C:\Users\hm\AppData\Roaming\Typora\typora-user-images\image-20230619152147366.png)
+![image-20230619152147366](assets/image-20230619152147366.png)
 
-### 7.1、删除标注
+###### 7.1、删除标注
 
-![image-20230619152210736](C:\Users\hm\AppData\Roaming\Typora\typora-user-images\image-20230619152210736.png)
+![image-20230619152210736](assets/image-20230619152210736.png)
 
-### 7.2、添加标注
+###### 7.2、添加标注
 
-![image-20230619152236905](C:\Users\hm\AppData\Roaming\Typora\typora-user-images\image-20230619152236905.png)
+![image-20230619152236905](assets/image-20230619152236905.png)
 
-## 8、巡护情况
+##### 8、巡护情况
 
-![image-20230619152314718](C:\Users\hm\AppData\Roaming\Typora\typora-user-images\image-20230619152314718.png)
+![image-20230619152314718](assets/image-20230619152314718.png)
 
-### 8.1、详细巡护情况
+###### 8.1、详细巡护情况
 
-![image-20230619152330136](C:\Users\hm\AppData\Roaming\Typora\typora-user-images\image-20230619152330136.png)
+![image-20230619152330136](assets/image-20230619152330136.png)

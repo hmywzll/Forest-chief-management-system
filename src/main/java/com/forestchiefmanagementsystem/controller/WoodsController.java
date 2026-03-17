@@ -34,14 +34,17 @@ public class WoodsController {
         return R.success(list);
     }
 
-    /**
+   /**
      * 通过PI id返回林地数据
      * @return
      */
     @GetMapping("/by_pi_id")
     public R<List<Woods>> getWoodsDataByPi(){
+        //获取PI id
         String piId = ThreadUtil.getPIId();
+        //根据PI id获取PersonalInformation对象
         PersonalInformation pi = personalInformationService.getById(piId);
+        //根据PI id和林地id获取林地数据
         List<Woods> list = woodsService.list(new LambdaQueryWrapper<Woods>().eq(!piId.equals("1"),Woods::getId,pi.getWoodsId()));
         return R.success(list);
     }
@@ -53,16 +56,19 @@ public class WoodsController {
      */
     @PostMapping
     public R<String> saveWood(@RequestBody Woods woods){
+        //检查林地名称是否重复
         Woods one = woodsService.getOne(new LambdaQueryWrapper<Woods>().eq(Woods::getWoodsName, woods.getWoodsName()));
         if (one!=null){
             return R.error("林地名称重复");
         }
+        //检查林地编号是否重复
         one = woodsService.getOne(new LambdaQueryWrapper<Woods>().eq(Woods::getWoodsNumber, woods.getWoodsNumber()));
         if (one!=null){
             return R.error("林地编号重复");
         }
 
         try {
+            //保存林地
             boolean save = woodsService.save(woods);
             return save?R.success("添加林地成功"):R.error("添加林地失败");
         }catch (Exception e){
@@ -70,7 +76,7 @@ public class WoodsController {
         }
     }
 
-    /**
+   /**
      * 根据id获取林地
      * @param id
      * @return

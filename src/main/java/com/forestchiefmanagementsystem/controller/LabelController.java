@@ -28,19 +28,22 @@ public class LabelController {
     @Autowired
     LabelExampleService labelExampleService;
 
-    /**
+   /**
      * 添加label
      */
     List<Integer> eventType= new ArrayList<>(Arrays.asList(0, 1));
     @PostMapping
     public R<String> addLabel(@RequestBody Label label){
+        //判断事件类型是否合法
         if (!eventType.contains(label.getLabelType())){
             return R.error("非法事件类型");
         }
+        //判断标注是否已存在
         Label one = labelService.getOne(new LambdaQueryWrapper<Label>().eq(Label::getLabelName, label.getLabelName()));
         if (one!=null){
             return R.error(label.getLabelName()+"标注已存在");
         }
+        //保存标注
         boolean save = labelService.save(label);
         return R.success("标注添加成功");
     }

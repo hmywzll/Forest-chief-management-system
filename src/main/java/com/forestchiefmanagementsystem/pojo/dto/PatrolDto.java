@@ -8,7 +8,7 @@ import lombok.Data;
 public class PatrolDto extends Patrol {
 
     private Integer patrolCount;
-    private Integer timeCount;
+    private Long timeCount;
     private Integer mileageCount;
     private PersonalInformation pI;
 }
