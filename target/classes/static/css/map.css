@@ -1,0 +1,67 @@
+*{
+  padding: 0;
+  margin: 0;
+}
+#app{
+  height: 100vh;
+  width: 100vw;
+}
+#map{
+  height: 100vh;
+  width: 100vw;
+}
+#action_box_show{
+  height: 500px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+#action_box_show{
+  width: 200px;
+}
+#action_box_woods{
+  width: 200px;
+}
+.button_big {
+  width: 140px;
+}
+.button_small {
+  width: 100px;
+}
+
+.avatar-uploader .el-upload {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.avatar-uploader .el-upload:hover {
+  border-color: #409EFF;
+}
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 100px;
+  height: 100px;
+  line-height: 100px;
+  text-align: center;
+}
+.avatar {
+  width: 178px;
+  height: 178px;
+  display: block;
+}
+#action_box_detail .el-main{
+  background-color: white;
+}
+.img_div{
+  display: inline-block;
+  height: 100px;
+  width: 100px;
+}
+.v-modal{
+  background-color: rgba(0, 0, 0, 0);
+}
+.el-col.el-col-4{
+  color: #9e9e9e;
+}

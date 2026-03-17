@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>employee</title>
+  <!--  vue-->
+  <script src="../js/vue.js"></script>
+  <!--  element-->
+  <link rel="stylesheet" href="../dependency/element-ui/lib/theme-chalk/index.css">
+  <script src="../dependency/element-ui/lib/index.js"></script>
+  <!--  axios-->
+  <script src="../dependency/axios/dist/axios.js"></script>
+
+  <link rel="stylesheet" href="../css/employee.css">
+  <script src="../js/common.js"></script>
+</head>
+<body>
+  <div id="app">
+    <el-container>
+      <el-header>
+        <el-row>
+          <el-col :span="4">
+            <el-row>
+              <el-col :span="8">
+                职位
+              </el-col>
+              <el-col :span="16">
+                <el-select value=""></el-select>
+              </el-col>
+            </el-row>
+          </el-col>
+          <el-col :span="4">
+            <el-row>
+              <el-col :span="8">
+                所属林地
+              </el-col>
+              <el-col :span="16">
+                <el-select value=""></el-select>
+              </el-col>
+            </el-row>
+          </el-col>
+          <el-col :span="4">
+            <el-button @click="add_employee">
+              添加人员
+            </el-button>
+          </el-col>
+        </el-row>
+
+
+      </el-header>
+
+      <el-main id="main">
+        <el-table
+            :data="table"
+            height="500"
+            :row-class-name="function (){return 'table_line'}"
+            :sort-change="function (column, prop, order){console.log('sort-change');console.log(column);console.log(prop);console.log(order)}"
+            :filter-change="filters"
+            stripe>
+          <el-table-column
+              v-if="checkbox_flag"
+              type="selection">
+          </el-table-column>
+
+          <el-table-column
+              prop="username"
+              label="姓名">
+          </el-table-column>
+
+          <el-table-column
+              prop="img"
+              label="照片">
+            <div class="img_div" slot-scope="item">
+              <el-image fit="fill"  :src="img_url(item.row.personalImg)"></el-image>
+            </div>
+          </el-table-column>
+
+          <el-table-column
+              prop="position"
+              :sortable="true"
+              :column-key="table.id"
+              label="职位">
+            <span slot-scope="item">{{get_position(item.row.position)}}</span>
+          </el-table-column>
+
+          <el-table-column
+              prop="woodsName"
+              label="所属林区">
+            <span slot-scope="item">{{item.row.woodsName}}</span>
+          </el-table-column>
+
+          <el-table-column
+              prop="woodsNumber"
+              label="区域编码">
+            <span slot-scope="item">{{item.row.woodsNumber}}</span>
+          </el-table-column>
+
+          <el-table-column
+              prop="status"
+              label="状态">
+            <span slot-scope="item">{{get_status(item.row.status)}}</span>
+          </el-table-column>
+
+          <el-table-column
+              label="操作"
+              :width="400">
+            <el-row slot-scope="item">
+              <el-col :span="8">
+              <el-button @click="open_pi_drawer(item.row)">详细信息</el-button>
+              </el-col>
+              <el-col :span="8">
+                <el-button v-if="gt_position(item.row.position)"  @click="add_task(item.row.id)">派遣任务</el-button>
+              </el-col>
+              <el-col :span="8">
+                <el-button v-if="gt_position(item.row.position)"  @click="delete_pi(item.row.id)">删除</el-button>
+              </el-col>
+            </el-row>
+
+          </el-table-column>
+        </el-table>
+      </el-main>
+
+      <el-footer>
+        <el-pagination
+            :pager-count="7"
+            :current-page="page.current"
+            :page-sizes="[10,20,30]"
+            :total="page.total"
+            @size-change="function(size){page.size=size;init();}"
+            @current-change="function(current){page.current=current;init();}">
+        </el-pagination>
+      </el-footer>
+
+    </el-container>
+<!--    派遣任务-->
+    <el-dialog
+        :visible="task.dialog_flag"
+        width="50%"
+        :append-to-body="true"
+        :show-close="false"
+        :before-close="change_task_dialog_flag"
+        title="派遣任务">
+      <el-form ref="task_form" :model="task.new_task" :rules="task_rules">
+        <el-form-item prop="labelId">
+          <el-row>
+            <el-col :span="4">事件</el-col>
+            <el-col :span="20">
+              <el-select :value="task.new_task.labelId" v-model="task.new_task.labelId">
+                <el-option label="无" value="0"></el-option>
+                <el-option v-for="item in task.label_examples" :key="item.id" :label="JSON.parse(item.labelGeojson).geometry.coordinates+''" :value="item.id"></el-option>
+              </el-select>
+            </el-col>
+          </el-row>
+        </el-form-item>
+
+        <el-form-item prop="taskDeadline">
+          <el-row>
+            <el-col :span="4">任务期限</el-col>
+            <el-col :span="20">
+              <el-date-picker
+                  type="datetime"
+                  v-model="task.new_task.taskDeadline">
+              </el-date-picker>
+            </el-col>
+          </el-row>
+        </el-form-item>
+
+        <el-form-item prop="taskContent">
+          <el-row>
+            <el-col :span="4">任务内容</el-col>
+            <el-col :span="20">
+              <el-input type="textarea" v-model="task.new_task.taskContent"></el-input>
+            </el-col>
+          </el-row>
+        </el-form-item>
+      </el-form>
+
+      <div slot="footer">
+        <el-row>
+          <el-col :span="8"><el-button @click="change_task_dialog_flag">取消</el-button></el-col>
+          <el-col :span="12"><el-button @click="notarize_add_task">确认</el-button></el-col>
+        </el-row>
+      </div>
+    </el-dialog>
+<!--    详细信息-->
+    <el-drawer
+        :close-on-press-escape="false"
+        :before-close="close_pi_drawer"
+        :show-close="false"
+        size="50%"
+        :visible="drawer_flag">
+      <el-container>
+        <el-main>
+          <el-descriptions
+              title="详细信息"
+              :column="2"
+              :colon="false">
+            <el-descriptions-item
+                label="姓名">
+              {{drawer_data.username}}
+            </el-descriptions-item>
+
+            <el-descriptions-item
+                label="性别">
+              {{drawer_data.sex===0?"男":"女"}}
+            </el-descriptions-item>
+
+            <el-descriptions-item
+                label="图片">
+              <el-image :src="img_url(drawer_data.personalImg)"></el-image>
+            </el-descriptions-item>
+
+            <el-descriptions-item
+                label="所属林地">
+              {{drawer_data.woodsName}}
+            </el-descriptions-item>
+
+            <el-descriptions-item
+                label="林地编码">
+              {{drawer_data.woodsNumber}}
+            </el-descriptions-item>
+
+            <el-descriptions-item
+                label="职位">
+              {{get_position(drawer_data.position)}}
+            </el-descriptions-item>
+
+            <el-descriptions-item
+                label="入职时间">
+              {{get_time(drawer_data.entryTime)}}
+            </el-descriptions-item>
+
+            <el-descriptions-item
+                label="状态">
+              {{get_status(drawer_data.status)}}
+            </el-descriptions-item>
+
+            <el-descriptions-item
+                label="电话号码">
+              {{drawer_data.phoneNumber}}
+            </el-descriptions-item>
+
+            <el-descriptions-item
+                label="负责人">
+              {{drawer_data.superiorName}}
+            </el-descriptions-item>
+
+          </el-descriptions>
+        </el-main>
+      </el-container>
+    </el-drawer>
+  </div>
+</body>
+  <script>
+    var app=new Vue({
+      el:"#app",
+      data(){
+        return{
+          //表
+          checkbox_flag:true,
+          table:[],
+          table_data:[],
+          woods_data:[],
+          filters:null,
+          page:{
+            total:0,
+            size:10,
+            current:1
+          },
+          //任务
+          task:{
+            label_examples:[],
+            dialog_flag:false,
+            new_task:{
+              receptionPersonId:"",
+              taskType:null,
+              labelId:null,
+              taskDeadline:null,
+              taskContent:""
+            }
+          },
+          //详细信息
+          drawer_flag:false,
+          drawer_data: {
+            entryTime: new Date(),
+            personalImg: "",
+            phoneNumber: "",
+            position: "",
+            sex: "",
+            status: "",
+            superiorName: "",
+            username: "",
+            woodsName: "",
+            woodsNumber: "",
+          },
+          task_rules:{
+            labelId:[
+              {required:true,message:"err",trigger:"change"}
+            ],
+            taskDeadline:[
+              {required:true,message:"err",trigger:"change"}
+            ],
+            taskContent:[
+              {required:true,message:"err",trigger:"change"}
+            ]
+          }
+        }
+      },
+      computed:{
+      },
+      watch:{
+
+      },
+      mounted:function (){
+        this.init();
+      },
+      methods:{
+        /**
+         * 初始化
+         */
+        init:function (){
+          this.get_page().then(function (){
+            app.get_woods_data().then(function (){
+              app.refresh_table();
+            });
+          });
+        },
+        /**
+         * 添加人员
+         */
+        add_employee:function (){
+          window.parent.location.last_href=window.location.href
+          window.location.href="/html/add_employee.html";
+        },
+        /**
+         *获取个人信息数据
+         */
+        get_page:async function(){
+          let _this=this
+          await axios.get("/personal_information",{
+            data:{
+              size:_this.page.size,
+              current:_this.page.current
+            }
+          }).then(function (res){
+            _this.page=res.data.data;
+              _this.table_data=res.data.data.records;
+          })
+        },
+        /**
+         *获取林地数据 将林地名称添加到table_data中
+         */
+        get_woods_data:async function (){
+          await axios.get("/woods").then(function (res){
+            app.woods_data=res.data.data;
+            for (let woodsDataKey in app.woods_data) {
+              for (let tableDataKey in app.table_data) {
+                if (app.table_data[tableDataKey].woodsId===app.woods_data[woodsDataKey].id){
+                  app.table_data[tableDataKey].woodsName=app.woods_data[woodsDataKey].woodsName;
+                  app.table_data[tableDataKey].woodsNumber=app.woods_data[woodsDataKey].woodsNumber;
+                }
+              }
+            }
+          })
+        },
+        /**
+         * 获取上级名字
+         */
+        get_superior_name:async function(id){
+          await axios.get("/personal_information/one",{
+            data:{id:id}
+          }).then(function (res){
+            if (res.data.code===1){
+              app.drawer_data.superiorName=res.data.data.username;
+            }
+          })
+
+        },
+        /**
+         * 图片路径
+         * @param img
+         */
+        img_url:function (name){
+          return get_img(name);
+        },
+        /**
+         * 职位转换
+         * @param i
+         * @returns {string}
+         */
+        get_position:function (i){
+          return get_position(i);
+        },
+        /**
+         * 状态转换
+         */
+        get_status:function (i){
+          return get_status(i);
+        },
+        /**
+         * 时间转换
+         */
+        get_time:function (d){
+          return  get_time(d);
+        },
+        /**
+         * 展开详细信息
+         */
+        open_pi_drawer:function (pi){
+          app.drawer_data=pi;
+          app.get_superior_name(pi.superiorId).then(function (){
+            app.drawer_flag=!app.drawer_flag;
+          })
+        },
+        /**
+         * 关闭详细信息
+         */
+        close_pi_drawer:function (){
+          this.drawer_flag=!this.drawer_flag;
+        },
+        /**
+         * 刷新数据
+         */
+        refresh_table:function () {
+          this.table = this.table_data;
+        },
+        /**
+         * delete
+         */
+        delete_pi:function (id){
+          app.$confirm("确认删除？","提示",{
+            type:"info"
+          }).then(function (){
+            axios.delete("/personal_information",{
+              data:{
+                id:id
+              }
+            }).then(function (res){
+              if (res.data.code===1){
+                app.$message.success("删除成功");
+                app.init();
+              }
+            })
+          }).catch(function (){
+          })
+        },
+        /**
+         *派遣任务
+         */
+        add_task:function (id){
+          this.task.new_task.receptionPersonId=id;
+          this.change_task_dialog_flag();
+          this.get_label_example();
+        },
+        /**
+         * 改变task.dialog_flag
+         */
+        change_task_dialog_flag:function (){
+          this.task.dialog_flag=!this.task.dialog_flag;
+        },
+        /**
+         * 获取事件
+         */
+        get_label_example:function (){
+          axios.get("/label_example/event").then(function (res){
+            if (res.data.code===1){
+              app.task.label_examples=res.data.data;
+            }
+          })
+        },
+        /**
+         * 确认添加task
+         */
+        notarize_add_task:function (){
+          this.$refs["task_form"].validate(function (b){
+            if (b){
+              app.task.new_task.labelId==="0"?app.task.new_task.taskType=0:app.task.new_task.taskType=1;
+              axios.post("/task",{...app.task.new_task}).then(function (res){
+                if (res.data.code===1){
+                  app.$message.success("添加任务成功");
+                  app.change_task_dialog_flag();
+                  app.task.new_task={
+                    receptionPersonId:"",
+                        taskType:null,
+                        labelId:null,
+                        taskDeadline:null,
+                        taskContent:""
+                  }
+                }
+              })
+            }
+          })
+        },
+        /**
+         * gt_positon
+         */
+        gt_position(i){
+          return gt_position(i);
+        }
+      }
+    })
+  </script>
+</html>

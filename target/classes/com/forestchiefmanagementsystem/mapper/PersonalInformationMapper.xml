@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.forestchiefmanagementsystem.mapper.PersonalInformationMapper">
+
+    <resultMap id="BaseResultMap" type="com.forestchiefmanagementsystem.pojo.PersonalInformation">
+            <id property="id" column="id" jdbcType="CHAR"/>
+            <result property="username" column="username" jdbcType="CHAR"/>
+            <result property="sex" column="sex" jdbcType="CHAR"/>
+            <result property="personalImg" column="personal_img" jdbcType="CHAR"/>
+            <result property="woodsId" column="woods_id" jdbcType="CHAR"/>
+            <result property="position" column="position" jdbcType="INTEGER"/>
+            <result property="entryTime" column="entry_time" jdbcType="TIMESTAMP"/>
+            <result property="status" column="status" jdbcType="INTEGER"/>
+            <result property="phoneNumber" column="phone_number" jdbcType="CHAR"/>
+            <result property="superiorId" column="superior_id" jdbcType="CHAR"/>
+            <result property="isDelete" column="is_delete" jdbcType="INTEGER"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="createUser" column="create_user" jdbcType="CHAR"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+            <result property="updateUser" column="update_user" jdbcType="CHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,username,sex,
+        personal_img,woods_id,position,
+        entry_time,status,phone_number,
+        superior_id,is_delete,
+        create_time,create_user,update_time,
+        update_user
+    </sql>
+</mapper>

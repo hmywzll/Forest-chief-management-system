@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.forestchiefmanagementsystem.mapper.PatrolMapper">
+
+    <resultMap id="BaseResultMap" type="com.forestchiefmanagementsystem.pojo.Patrol">
+            <id property="id" column="id" jdbcType="CHAR"/>
+            <result property="patrolPersonId" column="patrol_person_id" jdbcType="CHAR"/>
+            <result property="endTime" column="end_time" jdbcType="TIMESTAMP"/>
+            <result property="patrolDuration" column="patrol_duration" jdbcType="FLOAT"/>
+            <result property="patrolMileage" column="patrol_mileage" jdbcType="FLOAT"/>
+            <result property="patrolContent" column="patrol_content" jdbcType="VARCHAR"/>
+            <result property="startTime" column="start_time" jdbcType="TIMESTAMP"/>
+            <result property="patrolImgs" column="patrol_imgs" jdbcType="CHAR"/>
+            <result property="isDelete" column="is_delete" jdbcType="INTEGER"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="createUser" column="create_user" jdbcType="CHAR"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+            <result property="updateUser" column="update_user" jdbcType="CHAR"/>
+            <result property="patrolArea" column="patrol_area" jdbcType="VARCHAR"/>
+            <result property="patrolStatus" column="patrol_status" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <resultMap id="PIMap" type="com.forestchiefmanagementsystem.pojo.PersonalInformation">
+        <id property="id" column="id" jdbcType="CHAR"/>
+        <result property="username" column="username" jdbcType="CHAR"/>
+        <result property="sex" column="sex" jdbcType="CHAR"/>
+        <result property="personalImg" column="personal_img" jdbcType="CHAR"/>
+        <result property="woodsId" column="woods_id" jdbcType="CHAR"/>
+        <result property="position" column="position" jdbcType="INTEGER"/>
+        <result property="entryTime" column="entry_time" jdbcType="TIMESTAMP"/>
+        <result property="status" column="status" jdbcType="INTEGER"/>
+        <result property="phoneNumber" column="phone_number" jdbcType="CHAR"/>
+        <result property="superiorId" column="superior_id" jdbcType="CHAR"/>
+        <result property="isDelete" column="is_delete" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="createUser" column="create_user" jdbcType="CHAR"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="updateUser" column="update_user" jdbcType="CHAR"/>
+    </resultMap>
+
+    <resultMap id="myMap" type="com.forestchiefmanagementsystem.pojo.dto.PatrolDto">
+        <id property="id" column="pa_id" jdbcType="CHAR"/>
+        <result property="patrolPersonId" column="pat.patrol_person_id" jdbcType="CHAR"/>
+        <result property="endTime" column="end_time" jdbcType="TIMESTAMP"/>
+        <result property="patrolDuration" column="patrol_duration" jdbcType="FLOAT"/>
+        <result property="patrolMileage" column="patrol_mileage" jdbcType="FLOAT"/>
+        <result property="patrolContent" column="patrol_content" jdbcType="VARCHAR"/>
+        <result property="startTime" column="start_time" jdbcType="TIMESTAMP"/>
+        <result property="patrolImgs" column="patrol_imgs" jdbcType="CHAR"/>
+        <result property="isDelete" column="pa_is_delete" jdbcType="INTEGER"/>
+        <result property="createTime" column="pa_create_time" jdbcType="TIMESTAMP"/>
+        <result property="createUser" column="pa_create_user" jdbcType="CHAR"/>
+        <result property="updateTime" column="pa_update_time" jdbcType="TIMESTAMP"/>
+        <result property="updateUser" column="pa_update_user" jdbcType="CHAR"/>
+        <result property="patrolArea" column="pa_patrol_area" jdbcType="VARCHAR"/>
+        <result property="patrolStatus" column="patrol_status" jdbcType="INTEGER"/>
+        <result property="patrolCount" column="patrolCount" jdbcType="INTEGER"/>
+        <result property="timeCount" column="timeCount" jdbcType="BIGINT"/>
+        <result property="mileageCount" column="mileageCount" jdbcType="INTEGER"/>
+
+        <association property="pI" resultMap="PIMap"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,patrol_person_id,end_time,
+        patrol_duration,patrol_mileage,patrol_content,
+        start_time,patrol_imgs,is_delete,
+        create_time,create_user,update_time,
+        update_user,patrol_area,patrol_status
+    </sql>
+    <select id="getPatrolPage" resultMap="myMap">
+        select * from
+                     (select * from personal_information where id in
+        <foreach collection="idList" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+                         ) as personal_information
+                         left join (select id as pa_id,patrol_person_id,end_time,patrol_duration,patrol_mileage,patrol_content,start_time,patrol_imgs,is_delete as pa_is_delete,create_time as pa_create_time,create_user as pa_create_user,update_time as pa_update_time,update_user as pa_update_user,patrol_area,patrol_status,count(*) as patrolCount,sum(patrol_duration) as timeCount,sum(patrol_mileage) as mileageCount from patrol  group by patrol_person_id) as pat
+                             on pat.patrol_person_id = personal_information.id
+    </select>
+</mapper>

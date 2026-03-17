@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>patrol</title>
+  <!--  vue-->
+  <script src="../js/vue.js"></script>
+  <!--  element-->
+  <link rel="stylesheet" href="../dependency/element-ui/lib/theme-chalk/index.css">
+  <script src="../dependency/element-ui/lib/index.js"></script>
+  <!--  axios-->
+  <script src="../dependency/axios/dist/axios.js"></script>
+
+  <link rel="stylesheet" href="../css/patrol.css">
+  <script src="../js/common.js"></script>
+</head>
+<body>
+<div id="app">
+  <el-container>
+    <el-header>
+      <el-row>
+        <el-col :span="2">名称</el-col>
+        <el-col :span="2">
+          <el-input></el-input>
+        </el-col>
+        <el-col :offset="10" :span="2">
+          <el-button>总</el-button>
+        </el-col>
+        <el-col :span="2">
+          <el-button>月</el-button>
+        </el-col>
+      </el-row>
+    </el-header>
+
+    <el-main>
+      <el-table
+          :data="table"
+          height="500"
+          :row-class-name="function (){return 'table_line'}"
+          stripe>
+        <el-table-column
+            prop="pi.username"
+            label="姓名">
+        </el-table-column>
+
+        <el-table-column
+            label="照片">
+          <div slot-scope="item" class="img_div">
+            <el-image fit="fill" :src="get_img(item.row.pi.personalImg)"></el-image>
+          </div>
+        </el-table-column>
+
+<!--        <el-table-column-->
+<!--            label="所属林地">-->
+<!--            <span slot-scope="item">{{item.row}}</span>-->
+<!--        </el-table-column>-->
+
+        <el-table-column
+            label="职位">
+          <span slot-scope="item">{{get_position(item.row.pi.position)}}</span>
+        </el-table-column>
+
+        <el-table-column
+            prop="patrolCount"
+            label="巡护次数">
+          <span slot-scope="item">{{item.row.patrolCount?item.row.patrolCount:0}}</span>
+
+        </el-table-column>
+
+        <el-table-column
+            label="巡护总时长">
+          <span slot-scope="item">{{get_hours_minutes_seconds(item.row.timeCount?item.row.timeCount:0)}}</span>
+        </el-table-column>
+
+        <el-table-column
+            prop="mileageCount"
+            label="巡护总路程">
+          <span slot-scope="item">{{item.row.mileageCount?item.row.mileageCount:0}}</span>
+        </el-table-column>
+
+        <el-table-column
+            label="操作">
+          <el-button slot-scope="item" @click="pI_patrol(item.row.pi)">详细情况</el-button>
+        </el-table-column>
+
+      </el-table>
+    </el-main>
+
+    <el-footer>
+      <el-pagination
+          :pager-count="7"
+          :current-page="page.current"
+          :page-sizes="[10,20,30]"
+          :total="page.total"
+          @size-change="function(size){trim_page();page.size=size;get_patrol_page();}"
+          @current-change="function(current){trim_page();page.current=current;get_patrol_page();}">
+      </el-pagination>
+    </el-footer>
+
+    <el-drawer
+        :close-on-press-escape="false"
+        :before-close="chang_drawer_flag"
+        :show-close="false"
+        size="70%"
+        :visible="drawer_flag">
+
+      <h2 slot="title">巡护情况</h2>
+
+      <el-container>
+        <el-main>
+          <el-card v-for="item in patrol.data" :key="item.id" shadow="hover">
+            <el-row>
+              <el-col :span="2">巡护区域</el-col>
+              <el-col :span="2">
+                {{item.patrolArea}}
+              </el-col>
+              <el-col :span="2">开始时间</el-col>
+              <el-col :span="3">
+                {{get_time_month_minutes(item.startTime)}}
+              </el-col>
+              <el-col :span="2">结束时间</el-col>
+              <el-col :span="3">
+                {{get_time_month_minutes(item.endTime)}}
+              </el-col>
+              <el-col :span="2">巡护时间</el-col>
+              <el-col :span="3">
+                {{get_hours_minutes_seconds(item.patrolDuration)}}
+              </el-col>
+              <el-col :span="2">巡护里程</el-col>
+              <el-col :span="2">
+                {{item.patrolMileage}} 公里
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="2">巡护报告</el-col>
+              <el-col :span="2">
+                {{item.patrolContent}}
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="2">图片</el-col>
+              <el-col :offset="1" :span="2" v-for="item1 in item.patrolImgs.split(',')" :key="item1">
+                <div class="img_div">
+                  <el-image fit="fill" :src="get_img(item1)"></el-image>
+                </div>
+              </el-col>
+            </el-row>
+          </el-card>
+        </el-main>
+      </el-container>
+    </el-drawer>
+
+  </el-container>
+</div>
+</body>
+<script>
+  var app = new Vue({
+    el: "#app",
+    data() {
+      return {
+        drawer_flag:false,
+        table:null,
+        patrol:{
+          data:null
+        },
+        page:{
+          total:0,
+          size:10,
+          current:1
+        },
+        detail:{
+          page:{
+            total:0,
+            size:10,
+            current:1
+          }
+        }
+      }
+    },
+    computed: {},
+    mounted: function () {
+      this.get_patrol_page();
+    },
+    methods: {
+      /**
+       * 获取巡护数据
+       */
+      get_patrol_page:async function (){
+        let _this=this
+        await axios.get("/patrol",{
+          data:{..._this.page}
+        }).then(function (res){
+          _this.page=res.data.data;
+          _this.table=res.data.data.records;
+        })
+      },
+      /**
+       * 图片路径映射
+       */
+      get_img:function (name){
+        return get_img(name)
+      },
+      /**
+       * 职位映射
+       */
+      get_position:function (i){
+        return get_position(i)
+      },
+      /**
+       * 毫秒值转时分秒
+       * @param duration
+       * @returns {string}
+       */
+      get_hours_minutes_seconds:function msToTime(duration) {
+        console.log(duration)
+        let seconds = parseInt((duration / 1000) % 60);
+        let minutes = parseInt((duration / (1000 * 60)) % 60);
+        let hours = parseInt((duration / (1000 * 60 * 60)));
+
+        hours = (hours < 10) ? "0" + hours : hours;
+        minutes = (minutes < 10) ? "0" + minutes : minutes;
+        seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+          console.log(hours + ":" + minutes + ":" + seconds)
+
+        return hours + ":" + minutes + ":" + seconds;
+      },
+      /**
+       * 重置page
+       */
+      reset_page:function (){
+        app.page={
+          total:0,
+          size:10,
+          current:1
+        }
+      },
+      /**
+       * 去除分页以外的数据
+       */
+      trim_page:function (){
+        app.page={
+          total:app.page.total,
+          size:app.page.size,
+          current:app.page.current
+        }
+      },
+      /**
+       * 详细信息
+       */
+      pI_patrol:function (pi){
+        app.chang_drawer_flag();
+        axios.get("/patrol/id_patrol",{
+          data:{
+            id:pi.id,
+          }
+        }).then(function (res){
+          console.log(res.data)
+          if (res.data.code===1){
+            app.patrol.data=res.data.data;
+          }
+        })
+      },
+      /**
+       * 更改drawer_flag
+       */
+      chang_drawer_flag(){
+        app.drawer_flag=!app.drawer_flag;
+      },
+      /**
+       * 映射时间
+       * @param b
+       * @returns {string}
+       */
+      get_time_month_minutes:function (b){
+        return get_time_month_minutes(b)
+      },
+    },
+  })
+</script>
+</html>

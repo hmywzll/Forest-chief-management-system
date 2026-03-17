@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>login</title>
+<!--  vue-->
+  <script src="../js/vue.js"></script>
+<!--  element-->
+  <link rel="stylesheet" href="../dependency/element-ui/lib/theme-chalk/index.css">
+  <script src="../dependency/element-ui/lib/index.js"></script>
+<!--  axios-->
+  <script src="../dependency/axios/dist/axios.js"></script>
+
+  <link rel="stylesheet" href="../css/login.css">
+  <script src="../js/common.js"></script>
+</head>
+<body>
+  <div id="body">
+    <div id="app">
+      <el-container>
+        <el-header height="150px">
+          <p>林长制综合管理平台</p>
+        </el-header>
+        <el-main>
+          <el-form ref="form" :model="$data" :rules="rules" class="form">
+            <el-form-item prop="login_form.user">
+              <el-input v-model="login_form.user" placeholder="输入账号" clearable></el-input>
+
+            </el-form-item>
+            <el-form-item prop="login_form.password">
+              <el-input v-model="login_form.password" placeholder="输入密码" clearable show-password></el-input>
+            </el-form-item>
+            <el-form-item prop="verification.code">
+              <el-input class="verification_code_input" res="verification_code_input" v-model="verification.code" placeholder="输入验证码"></el-input>
+              <el-image class="verification_code_image" :src="verification.img_url" @click="get_verification_code"></el-image>
+            </el-form-item>
+            <el-form-item>
+              <el-checkbox v-model="remember_password">记住密码</el-checkbox>
+              <el-link type="primary" :underline="false">忘记密码？</el-link>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" @click="submit_form" :loading="login_loading">登录</el-button>
+            </el-form-item>
+          </el-form>
+        </el-main>
+      </el-container>
+    </div>
+  </div>
+
+  <script>
+    app=new Vue({
+      el:'#app',
+      data(){
+        return{
+          login_form:{
+            user:'admin',
+            password:'123456',
+            // user:'',
+            // password:'',
+          },
+          verification:{
+            code:'',
+            img_url:'',
+            code_check:''
+          },
+          remember_password:false,
+          login_loading:false,
+          rules:{
+            "login_form.user":[
+              {required: true, message: 'err',trigger: 'change'}
+            ],
+            "login_form.password":[
+              {required: true, message: 'err',trigger: 'change'}
+            ],
+            "verification.code":[
+              {required: true, message:'err',trigger: 'change'}
+            ]
+          }
+        }
+      },
+      computed:{
+      },
+      mounted:function (){
+        this.get_verification_code();
+      },
+      methods:{
+        /**
+         * 验证码获取
+         */
+        get_verification_code:function (){
+          axios.get("/verify_code").then(function (res){
+            app.verification.img_url=the_path+"/download_img/"+res.data.data[0];
+            app.verification.code_check=res.data.data[1];
+            app.verification.code="";
+            app.verification.code=res.data.data[1];
+          })
+        },
+        /**
+         * 表单验证及登录
+         */
+        submit_form:function (){
+          this.$refs["form"].validate(function (b,obj){
+            // element校验
+            if (b){
+              // 验证码校验
+              if (app.verification.code===app.verification.code_check){
+                axios.get("/account/login",{data:{...app.login_form}}).then(function (res){
+                  if (res.data.code===1){
+                    localStorage.setItem("user_info",JSON.stringify(res.data.data));
+                    localStorage.setItem("id",res.data.data.id);
+                    localStorage.setItem("position",res.data.data.position);
+                    window.location.href="./index.html";
+                  }else{
+                    app.$message.error(res.data.msg);
+                  }
+                })
+              }else{
+                app.$message.error("验证码输入错误");
+                app.get_verification_code();
+              }
+            }else{
+              return false;
+            }
+          })
+        }
+      }
+    })
+  </script>
+</body>
+</html>

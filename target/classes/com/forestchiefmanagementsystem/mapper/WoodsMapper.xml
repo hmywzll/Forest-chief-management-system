@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.forestchiefmanagementsystem.mapper.WoodsMapper">
+
+    <resultMap id="BaseResultMap" type="com.forestchiefmanagementsystem.pojo.Woods">
+            <id property="id" column="id" jdbcType="CHAR"/>
+            <result property="woodsName" column="woods_name" jdbcType="CHAR"/>
+            <result property="woodsNumber" column="woods_number" jdbcType="CHAR"/>
+            <result property="woodsGeojson" column="woods_geojson" jdbcType="VARCHAR"/>
+            <result property="isDelete" column="is_delete" jdbcType="INTEGER"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="createUser" column="create_user" jdbcType="CHAR"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+            <result property="updateUser" column="update_user" jdbcType="CHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,woods_name,woods_number,
+        woods_geojson,is_delete,create_time,
+        create_user,update_time,update_user
+    </sql>
+</mapper>

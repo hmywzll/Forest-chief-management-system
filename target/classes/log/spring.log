@@ -1,0 +1,62 @@
+2023-12-27 14:50:34.992  INFO 29272 --- [main] f.ForestChiefManagementSystemApplication : Starting ForestChiefManagementSystemApplication using Java 1.8.0_362 on LAPTOP-U7IJCIHA with PID 29272 (D:\java\xm\ForestChiefManagementSystem\target\classes started by hm in D:\java\xm\ForestChiefManagementSystem)
+2023-12-27 14:50:35.002 DEBUG 29272 --- [main] f.ForestChiefManagementSystemApplication : Running with Spring Boot v2.7.6, Spring v5.3.24
+2023-12-27 14:50:35.003  INFO 29272 --- [main] f.ForestChiefManagementSystemApplication : No active profile set, falling back to 1 default profile: "default"
+2023-12-27 14:50:36.510  INFO 29272 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+2023-12-27 14:50:36.511  INFO 29272 --- [main] o.a.catalina.core.AprLifecycleListener   : Loaded Apache Tomcat Native library [1.2.35] using APR version [1.7.0].
+2023-12-27 14:50:36.512  INFO 29272 --- [main] o.a.catalina.core.AprLifecycleListener   : APR capabilities: IPv6 [true], sendfile [true], accept filters [false], random [true], UDS [true].
+2023-12-27 14:50:36.512  INFO 29272 --- [main] o.a.catalina.core.AprLifecycleListener   : APR/OpenSSL configuration: useAprConnector [false], useOpenSSL [true]
+2023-12-27 14:50:36.517  INFO 29272 --- [main] o.a.catalina.core.AprLifecycleListener   : OpenSSL successfully initialized [OpenSSL 1.1.1q  5 Jul 2022]
+2023-12-27 14:50:36.526  INFO 29272 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2023-12-27 14:50:36.527  INFO 29272 --- [main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.69]
+2023-12-27 14:50:36.680  INFO 29272 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2023-12-27 14:50:36.680  INFO 29272 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1614 ms
+2023-12-27 14:50:36.889  INFO 29272 --- [main] c.a.d.s.b.a.DruidDataSourceAutoConfigure : Init DruidDataSource
+2023-12-27 14:50:37.026  INFO 29272 --- [main] com.alibaba.druid.pool.DruidDataSource   : {dataSource-1} inited
+2023-12-27 14:50:39.496  INFO 29272 --- [main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
+2023-12-27 14:50:39.679  INFO 29272 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+2023-12-27 14:50:39.688  INFO 29272 --- [main] f.ForestChiefManagementSystemApplication : Started ForestChiefManagementSystemApplication in 5.207 seconds (JVM running for 7.207)
+2023-12-27 14:51:04.640  INFO 29272 --- [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2023-12-27 14:51:04.641  INFO 29272 --- [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2023-12-27 14:51:04.641  INFO 29272 --- [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2023-12-27 14:51:04.649  INFO 29272 --- [http-nio-8080-exec-1] c.f.config.LogInFilter                   : 拦截到请求GET:/html/index.html
+2023-12-27 14:51:04.649  INFO 29272 --- [http-nio-8080-exec-1] c.f.config.LogInFilter                   : /html放行
+2023-12-27 14:51:04.787  INFO 29272 --- [http-nio-8080-exec-3] c.f.config.LogInFilter                   : 拦截到请求GET:/css/index.css
+2023-12-27 14:51:04.787  INFO 29272 --- [http-nio-8080-exec-3] c.f.config.LogInFilter                   : /css放行
+2023-12-27 14:51:05.211  INFO 29272 --- [http-nio-8080-exec-2] c.f.config.LogInFilter                   : 拦截到请求GET:/download_img/head1
+2023-12-27 14:51:05.223  INFO 29272 --- [http-nio-8080-exec-4] c.f.config.LogInFilter                   : 拦截到请求GET:/woods/by_id
+2023-12-27 14:51:05.223  INFO 29272 --- [http-nio-8080-exec-5] c.f.config.LogInFilter                   : 拦截到请求GET:/personal_information/one
+2023-12-27 14:51:05.471  INFO 29272 --- [http-nio-8080-exec-6] c.f.config.LogInFilter                   : 拦截到请求GET:/html/login.html
+2023-12-27 14:51:05.471  INFO 29272 --- [http-nio-8080-exec-6] c.f.config.LogInFilter                   : /html放行
+2023-12-27 14:51:05.586  INFO 29272 --- [http-nio-8080-exec-7] c.f.config.LogInFilter                   : 拦截到请求GET:/css/login.css
+2023-12-27 14:51:05.586  INFO 29272 --- [http-nio-8080-exec-7] c.f.config.LogInFilter                   : /css放行
+2023-12-27 14:51:05.593  INFO 29272 --- [http-nio-8080-exec-8] c.f.config.LogInFilter                   : 拦截到请求GET:/woods
+2023-12-27 14:51:05.593  INFO 29272 --- [http-nio-8080-exec-9] c.f.config.LogInFilter                   : 拦截到请求GET:/label
+2023-12-27 14:51:05.596  INFO 29272 --- [http-nio-8080-exec-10] c.f.config.LogInFilter                   : 拦截到请求GET:/label_example
+2023-12-27 14:51:06.053  INFO 29272 --- [http-nio-8080-exec-1] c.f.config.LogInFilter                   : 拦截到请求GET:/verify_code
+2023-12-27 14:51:06.053  INFO 29272 --- [http-nio-8080-exec-3] c.f.config.LogInFilter                   : 拦截到请求GET:/img/static/login.png
+2023-12-27 14:51:06.053  INFO 29272 --- [http-nio-8080-exec-1] c.f.config.LogInFilter                   : verify放行
+2023-12-27 14:51:06.053  INFO 29272 --- [http-nio-8080-exec-3] c.f.config.LogInFilter                   : /login放行
+2023-12-27 14:51:06.743  INFO 29272 --- [http-nio-8080-exec-2] c.f.config.LogInFilter                   : 拦截到请求GET:/download_img/verify1703659866662
+2023-12-27 14:51:06.743  INFO 29272 --- [http-nio-8080-exec-2] c.f.config.LogInFilter                   : verify放行
+2023-12-27 14:51:07.392  INFO 29272 --- [http-nio-8080-exec-4] c.f.config.LogInFilter                   : 拦截到请求GET:/account/login
+2023-12-27 14:51:07.392  INFO 29272 --- [http-nio-8080-exec-4] c.f.config.LogInFilter                   : /login放行
+2023-12-27 14:51:07.911  INFO 29272 --- [http-nio-8080-exec-5] c.f.config.LogInFilter                   : 拦截到请求GET:/img/static/logo.png
+2023-12-27 14:51:07.952  INFO 29272 --- [http-nio-8080-exec-6] c.f.config.LogInFilter                   : 拦截到请求GET:/img/static/logout.png
+2023-12-27 14:51:08.034  INFO 29272 --- [http-nio-8080-exec-7] c.f.config.LogInFilter                   : 拦截到请求GET:/download_img/head1
+2023-12-27 14:51:08.054  INFO 29272 --- [http-nio-8080-exec-8] c.f.config.LogInFilter                   : 拦截到请求GET:/personal_information/one
+2023-12-27 14:51:08.057  INFO 29272 --- [http-nio-8080-exec-9] c.f.config.LogInFilter                   : 拦截到请求GET:/woods/by_id
+2023-12-27 14:51:08.126  INFO 29272 --- [http-nio-8080-exec-10] c.f.config.LogInFilter                   : 拦截到请求GET:/dependency/leaflet/leaflet.js
+2023-12-27 14:51:08.127  INFO 29272 --- [http-nio-8080-exec-10] c.f.config.LogInFilter                   : /dependency放行
+2023-12-27 14:51:08.254  INFO 29272 --- [http-nio-8080-exec-3] c.f.config.LogInFilter                   : 拦截到请求GET:/woods
+2023-12-27 14:51:08.274  INFO 29272 --- [http-nio-8080-exec-1] c.f.config.LogInFilter                   : 拦截到请求GET:/label
+2023-12-27 14:51:08.278  INFO 29272 --- [http-nio-8080-exec-2] c.f.config.LogInFilter                   : 拦截到请求GET:/label_example
+2023-12-27 14:51:08.461  INFO 29272 --- [http-nio-8080-exec-4] c.f.config.LogInFilter                   : 拦截到请求GET:/download_img/label1686791199396
+2023-12-27 14:51:08.476  INFO 29272 --- [http-nio-8080-exec-5] c.f.config.LogInFilter                   : 拦截到请求GET:/download_img/label1686791294467
+2023-12-27 14:51:08.484  INFO 29272 --- [http-nio-8080-exec-6] c.f.config.LogInFilter                   : 拦截到请求GET:/download_img/label1702969591499
+2023-12-27 14:51:08.485  INFO 29272 --- [http-nio-8080-exec-7] c.f.config.LogInFilter                   : 拦截到请求GET:/download_img/label1686789791848
+2023-12-27 14:51:08.486  INFO 29272 --- [http-nio-8080-exec-8] c.f.config.LogInFilter                   : 拦截到请求GET:/download_img/label1686791247940
+2023-12-27 14:51:08.487  INFO 29272 --- [http-nio-8080-exec-9] c.f.config.LogInFilter                   : 拦截到请求GET:/download_img/label1686791269437
+2023-12-27 15:15:03.757  INFO 29272 --- [http-nio-8080-exec-6] c.f.config.LogInFilter                   : 拦截到请求GET:/label_example/all_correlation
+2023-12-27 15:15:03.810  INFO 29272 --- [http-nio-8080-exec-7] c.f.config.LogInFilter                   : 拦截到请求GET:/download_img/example1687141419379
+2023-12-27 16:31:32.801  INFO 29272 --- [SpringApplicationShutdownHook] com.alibaba.druid.pool.DruidDataSource   : {dataSource-1} closing ...
+2023-12-27 16:31:32.804  INFO 29272 --- [SpringApplicationShutdownHook] com.alibaba.druid.pool.DruidDataSource   : {dataSource-1} closed

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>index</title>
+  <!--  vue-->
+  <script src="../js/vue.js"></script>
+  <!--  element-->
+  <link rel="stylesheet" href="../dependency/element-ui/lib/theme-chalk/index.css">
+  <script src="../dependency/element-ui/lib/index.js"></script>
+  <!--  axios-->
+  <script src="../dependency/axios/dist/axios.js"></script>
+
+  <link rel="stylesheet" href="../css/index.css">
+  <script src="../js/common.js"></script>
+</head>
+<body>
+  <div id="app">
+    <el-container>
+
+      <el-header class="header">
+        <el-row>
+          <el-col class="left" :span="12">
+            <img class="logo_img" src="../img/static/logo.png" alt="">
+            <p>林长制综合管理系统</p>
+          </el-col>
+          <el-col class="right" :span="12">
+            <el-link @click="open_pi_drawer" class="position" :underline="false">{{position}} {{username}}</el-link>
+            <el-link @click="open_pi_drawer" :underline="false"><img class="avatar_img" :src="avatar_image" alt=""></el-link>
+            <el-divider direction="vertical"></el-divider>
+            <el-button class="logout" @click="login_out"></el-button>
+          </el-col>
+        </el-row>
+
+        <el-drawer
+            :close-on-press-escape="false"
+            :before-close="close_pi_drawer"
+            :show-close="false"
+            size="50%"
+            :visible="drawer_flag">
+          <el-container>
+            <el-main>
+              <el-descriptions
+                  title="详细信息"
+                  :column="2"
+                  :colon="false">
+                <el-descriptions-item
+                    label="姓名">
+                  {{drawer_data.username}}
+                </el-descriptions-item>
+
+                <el-descriptions-item
+                    label="性别">
+                  {{drawer_data.sex===0?"男":"女"}}
+                </el-descriptions-item>
+
+                <el-descriptions-item
+                    label="图片">
+                  <el-image :src="get_img(drawer_data.personalImg)"></el-image>
+                </el-descriptions-item>
+
+                <el-descriptions-item
+                    label="所属林地">
+                  {{drawer_data.woodsName}}
+                </el-descriptions-item>
+
+                <el-descriptions-item
+                    label="林地编码">
+                  {{drawer_data.woodsNumber}}
+                </el-descriptions-item>
+
+                <el-descriptions-item
+                    label="职位">
+                  {{get_position(drawer_data.position)}}
+                </el-descriptions-item>
+
+                <el-descriptions-item
+                    label="入职时间">
+                  {{get_time(drawer_data.entryTime)}}
+                </el-descriptions-item>
+
+                <el-descriptions-item
+                    label="状态">
+                  {{get_status(drawer_data.status)}}
+                </el-descriptions-item>
+
+                <el-descriptions-item
+                    label="电话号码">
+                  {{drawer_data.phoneNumber}}
+                </el-descriptions-item>
+
+                <el-descriptions-item
+                    label="负责人">
+                  {{drawer_data.superiorName}}
+                </el-descriptions-item>
+
+              </el-descriptions>
+
+              <el-row>
+                <el-col>
+                  <el-button @click="modify_account">修改账号</el-button>
+                </el-col>
+              </el-row>
+
+              <el-card v-if="password.flag">
+                <el-form ref="new_password" :model="password" :rules="password_rules">
+                  <el-form-item prop="order_password">
+                    <el-row>
+                      <el-col :span="4">旧密码</el-col>
+                      <el-col :span="10">
+                        <el-input v-model="password.order_password"></el-input>
+                      </el-col>
+                    </el-row>
+                  </el-form-item>
+
+                  <el-form-item prop="new_user">
+                    <el-row>
+                      <el-col :span="4">新账号名</el-col>
+                      <el-col :span="10">
+                        <el-input v-model="password.new_user"></el-input>
+                      </el-col>
+                    </el-row>
+                  </el-form-item>
+
+                  <el-form-item prop="new_password">
+                    <el-row>
+                      <el-col :span="4">新密码</el-col>
+                      <el-col :span="10">
+                        <el-input v-model="password.new_password"></el-input>
+                      </el-col>
+                    </el-row>
+                  </el-form-item>
+
+                  <el-row>
+                    <el-col :span="10" >
+                      <el-button @click="notarize_password">
+                        提交
+                      </el-button>
+                    </el-col>
+                  </el-row>
+                </el-form>
+              </el-card>
+
+            </el-main>
+          </el-container>
+        </el-drawer>
+
+
+      </el-header>
+      <el-container>
+        <el-aside width="100px">
+
+          <el-row>
+            <el-col :span="24">
+              <el-menu>
+                <el-menu-item v-for="item in menu" @click="skip(item.url)" v-if="item.position==null||gt_position(item.position)">
+                  <div>
+                    <el-badge :value="item.value">{{item.name}}</el-badge>
+                  </div>
+                </el-menu-item>
+              </el-menu>
+            </el-col>
+          </el-row>
+
+        </el-aside>
+
+        <el-main id="index_iframe">
+          <iframe :src="iframe_src">
+          </iframe>
+        </el-main>
+
+      </el-container>
+    </el-container>
+  </div>
+
+
+  <script>
+    var app=new Vue({
+      el:'#app',
+      data(){
+        return{
+          menu:[
+            {
+              name:"地图",
+              url:"/html/map.html"
+            },
+            {
+              name:"人员",
+              url:"/html/employee.html"
+            },
+            {
+              name:"任务",
+              url:"/html/task.html"
+            },
+            {
+              name:"通知",
+              url:"/html/inform.html",
+              value:""
+            },
+            {
+              name:"标注",
+              url:"/html/label.html",
+              position:1
+            },
+            {
+              name:"巡护情况",
+              url:"/html/patrol.html",
+              position:3
+            }
+          ],
+          drawer_data: {
+            entryTime: new Date(),
+            personalImg: "",
+            phoneNumber: "",
+            position: "",
+            sex: "",
+            status: "",
+            superiorName: "",
+            username: "",
+            woodsName: "",
+            woodsNumber: "",
+          },
+          password:{
+            flag:false,
+            order_password:"",
+            new_password:"",
+            new_user:""
+          },
+          drawer_flag:false,
+          avatar_image:"",
+          position:"",
+          username:"",
+          iframe_src:"/html/map.html",
+          password_rules:{
+            order_password:[
+              {required:true,message:"err",trigger:"change"}
+            ],
+            new_password:[
+              {required:true,message:"err",trigger:"change"}
+            ],
+            new_user:[
+              {required:true,message:"err",trigger:"change"}
+            ],
+          }
+        }
+      },
+      mounted:function (){
+        user_info=JSON.parse(localStorage.getItem("user_info"))
+        this.position=get_position(user_info.position);
+        this.username=user_info.username;
+        this.avatar_image=get_img(user_info.personalImg);
+        this.get_my_data();
+
+      },
+      methods:{
+        /**
+         * 退出登录
+         */
+        login_out:function (){
+          axios.get("/account/login_out").then(function (res){
+            if (res.data.code===1){
+              window.location.href=the_path+"/html/login.html";
+            }
+          })
+        },
+        /**
+         * 跳转页面
+         * @param url
+         */
+        skip:function (url){
+          this.iframe_src=url
+        },
+
+        /**
+         * 映射职位
+         */
+        get_position(i){
+          return get_position(i);
+        },
+
+        /**
+         * 大于position判断
+         */
+        gt_position:function (i){
+          return gt_position(i)
+        },
+        /**
+         * 打开详细信息
+         */
+        open_pi_drawer:function (){
+            app.drawer_flag=true;
+        },
+        /**
+         * 初始化详细信息
+         */
+        get_my_data:function (){
+          this.drawer_data=JSON.parse(localStorage.getItem("user_info"));
+          console.log(this.drawer_data);
+          this.get_superior_name(this.drawer_data.superiorId);
+          this.get_woods_name(this.drawer_data.woodsId);
+        },
+        /**
+         * 获取上级名字
+         */
+        get_superior_name:async function(id){
+          let _this=this
+          await axios.get("/personal_information/one",{
+            data:{id:id}
+          }).then(function (res){
+            if (res.data.code===1){
+              _this.drawer_data.superiorName=res.data.data.username;
+            }
+          })
+        },
+        /**
+         * 获取林地数据
+         */
+        get_woods_name:async function(woodsId){
+          let _this=this
+          await axios.get("/woods/by_id",{
+            data:{
+              id:woodsId
+            }
+          }).then(function (res){
+            if (res.data.code===1){
+              _this.drawer_data.woodsName=res.data.data.woodsName;
+              _this.drawer_data.woodsNumber=res.data.data.woodsNumber;
+            }
+          })
+        },
+        /**
+         * 关闭详细信息
+         */
+        close_pi_drawer:function (){
+          this.drawer_flag=false;
+        },
+        /**
+         * 映射图片路径
+         */
+        get_img:function (name){
+          return get_img(name)
+        },
+        /**
+         * 日期映射
+         * @param d
+         * @returns {string}
+         */
+        get_time:function (d){
+          return get_time(d);
+        },
+        /**
+         * 映射人物状态
+         */
+        get_status:function (i){
+          return get_status(i);
+        },
+
+        /**
+         * 更改password.flag
+         */
+        chang_password_flag:function (){
+          app.password.flag=!app.password.flag;
+        },
+
+        /**
+         * 修改账号
+         */
+        modify_account:function (){
+          this.chang_password_flag();
+
+        },
+        /**
+         * 确认修改账号
+         */
+        notarize_password:function (){
+          this.$refs["new_password"].validate(function (b){
+            if (b){
+              app.$confirm("确认删除？","提示",{
+                type:"info"
+              }).then(function (){
+                axios.put("/account",{...app.password}).then(function (res){
+                  if (res.data.code===1){
+                    window.parent.app.$message.success("账号修改成功");
+                    app.login_out();
+                  }
+                })
+              }).catch(function (){
+              })
+            }
+          })
+        }
+      },
+    })
+  </script>
+</body>
+</html>

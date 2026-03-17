@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>add_employee</title>
+  <!--  vue-->
+  <script src="../js/vue.js"></script>
+  <!--  element-->
+  <link rel="stylesheet" href="../dependency/element-ui/lib/theme-chalk/index.css">
+  <script src="../dependency/element-ui/lib/index.js"></script>
+  <!--  axios-->
+  <script src="../dependency/axios/dist/axios.js"></script>
+
+  <link rel="stylesheet" href="../css/add_employee.css">
+  <script src="../js/common.js"></script>
+</head>
+<body>
+<div id="app">
+  <el-container>
+    <el-header height="20px">
+      <el-row>
+        <el-col>
+          <el-link :underline="false" class="el-icon-arrow-left get_back" @click="get_back">返回</el-link>
+        </el-col>
+      </el-row>
+    </el-header>
+    <el-main>
+      <el-form :model="form" ref="form" :rules="rules">
+        <el-row>
+          <el-col :span="12">
+            <el-form-item prop="username">
+              <el-row>
+                <el-col :offset="2" :span="4">
+                  姓名
+                </el-col>
+                <el-col :span="18">
+                  <el-input v-model="form.username"></el-input>
+                </el-col>
+              </el-row>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item prop="sex">
+              <el-row>
+                <el-col :offset="2" :span="4">
+                  性别
+                </el-col>
+                <el-col :span="18">
+                  <el-select v-model="form.sex">
+                    <el-option v-for="item in form_sum.sex" :key="item.value" :value="item.value" :label="item.key"></el-option>
+                  </el-select>
+                </el-col>
+              </el-row>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item prop="personalImg">
+              <el-row>
+                <el-col :offset="2" :span="4">
+                  图片
+                </el-col>
+                <el-col :span="18">
+                  <el-upload
+                      ref="upload"
+                      class="avatar-uploader"
+                      :show-file-list="false"
+                      :on-success="upload_success"
+                      action="/upload_img/head">
+                    <img v-if="form.personalImg" :src="img_url" class="avatar">
+                    <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                  </el-upload>
+                </el-col>
+              </el-row>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item prop="woodsId">
+              <el-row>
+                <el-col :offset="2" :span="4">
+                  所属林地
+                </el-col>
+                <el-col :span="18">
+                  <el-select v-model="form.woodsId">
+                    <el-option v-for="item in form_sum.woods" :key="item.id" :value="item.id" :label="item.woodsName">
+                    </el-option>
+                  </el-select>
+                </el-col>
+              </el-row>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item>
+              <el-row>
+                <el-col :offset="2" :span="4">
+                  林地编码
+                </el-col>
+                <el-col :span="18">
+                  {{form_sum.woodsNumber}}
+                </el-col>
+              </el-row>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item prop="position">
+              <el-row>
+                <el-col :offset="2" :span="4">
+                  职位
+                </el-col>
+                <el-col :span="18">
+                  <el-select v-model="form.position">
+                    <el-option v-show="gt_position(item.value)" v-for="item in form_sum.position" :key="item.value" :label="item.key" :value="item.value"></el-option>
+                  </el-select>
+                </el-col>
+              </el-row>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item prop="entryTime">
+              <el-row>
+                <el-col :offset="2" :span="4">
+                  入职时间
+                </el-col>
+                <el-col :span="18">
+                  <el-date-picker
+                      v-model="form.entryTime"
+                      type="date"
+                      placeholder="选择日期">
+                  </el-date-picker>
+                </el-col>
+              </el-row>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item prop="phoneNumber">
+              <el-row>
+                <el-col :offset="2" :span="4">
+                  电话号码
+                </el-col>
+                <el-col :span="18">
+                  <el-input v-model="form.phoneNumber">
+                  </el-input>
+                </el-col>
+              </el-row>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item prop="superiorId">
+              <el-row>
+                <el-col :offset="2" :span="4">
+                  负责人
+                </el-col>
+                <el-col :span="18">
+                  <el-select v-model="form.superiorId" :disabled="!(form.position!=null||'')&&(form.woodsId!=null||'')">
+                    <el-option v-for="item in form_sum.superiorId" :key="item.id" :label="item.username" :value="item.id">
+                    </el-option>
+                  </el-select>
+                </el-col>
+              </el-row>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :offset="8" :span="8">
+            <el-button @click="submit">确认</el-button>
+          </el-col>
+        </el-row>
+      </el-form>
+    </el-main>
+  </el-container>
+
+
+</div>
+</body>
+<script>
+  var app = new Vue({
+    el: "#app",
+    data() {
+      return {
+        form_sum:{
+          sex:[
+            {key:"男",value:0},
+            {key:"女",value:1}
+          ],
+          woods:[],
+          position:[
+            {key:"管理员",value: 0},
+            {key:"林长",value: 1},
+            {key:"监管员",value: 2},
+            {key:"巡护员",value: 3}
+          ],
+          superiorId:[],
+          woodsNumber:""
+        },
+        form:{
+          username:"",
+          sex:null,
+          personalImg:"",
+          woodsId:"",
+          position:null,
+          entryTime:null,
+          phoneNumber:"",
+          superiorId:""
+        },
+        rules:{
+          username:[
+            {required: true, message: 'err',trigger: 'change'}
+          ],
+          sex:[
+            {required: true, message: 'err',trigger: 'change'}
+          ],
+          personalImg:[
+            {required: true, message: 'err',trigger: 'change'}
+          ],
+          woodsId:[
+            {required: true, message: 'err',trigger: 'change'}
+          ],
+          position:[
+            {required: true, message: 'err',trigger: 'change'}
+          ],
+          entryTime:[
+            {required: true, message: 'err',trigger: 'change'}
+          ],
+          phoneNumber:[
+            {required: true, message: 'err',trigger: 'change'}
+          ],
+          superiorId:[
+            {required: true, message: 'err',trigger: 'change'}
+          ]
+        }
+      }
+    },
+    computed: {
+      img_url:function (){
+        return get_img(this.form.personalImg);
+      }
+    },
+    watch:{
+      /**
+       * 改变林地编码
+       */
+      "form.woodsId":function (){
+        this.form_sum.woods.forEach(item => {
+          if (item.id===app.form.woodsId){
+            app.form_sum.woodsNumber=item.woodsNumber;
+          }
+          if ((app.form.position!=null||'')&&(app.form.woodsId!=null||'')){
+            app.get_superiors();
+          }
+        })
+      },
+      "form.position":function (){
+        if ((app.form.position!=null||'')&&(app.form.woodsId!=null||'')){
+          app.get_superiors();
+        }
+      }
+    },
+    mounted:function (){
+      this.get_woods_data();
+    },
+    methods: {
+      /**
+       * 图片上传后触发
+       * @param response
+       * @param file
+       * @param fileList
+       */
+      upload_success:function (response,file,fileList){
+        if (response.code===1){
+          app.form.personalImg=response.data;
+        }
+      },
+      /**
+       * 获取woods数据
+       */
+      get_woods_data:function (){
+        axios.get("/woods/by_pi_id").then(function (res){
+          if (res.data.code===1){
+            app.form_sum.woods=res.data.data;
+          }
+        })
+      },
+      /**
+       * 获取可能的上级列表
+       */
+      get_superiors:function (){
+        console.log(app.form.position)
+        console.log(app.form.woodsId)
+        axios.get("/personal_information/get_superiors",{
+          data:{
+            position:app.form.position,
+            woodsId:app.form.woodsId
+          }
+        }).then(function (res){
+          app.form_sum.superiorId=res.data.data;
+        })
+      },
+      /**
+       * 提交表单
+       */
+      submit:function (){
+        this.$refs["form"].validate(function (b,obj){
+          if (b){
+            axios.post("/personal_information/add_pi",{...app.form}).then(function (res){
+              if (res.data.code===1){
+                window.parent.app.$message.success(res.data.data);
+                app.get_back();
+              }
+            })
+          }
+        })
+      },
+      /**
+       * 返回
+       */
+      get_back:function (){
+        window.location.href=window.parent.location.last_href;
+      },
+      /**
+       * 大于position判断
+       */
+      gt_position(i){
+        return gt_position(i);
+      }
+
+    }
+  })
+</script>
+</html>
